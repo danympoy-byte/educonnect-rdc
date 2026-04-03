@@ -1,0 +1,614 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import statsService from '../../services/stats.service';
+import etablissementsService from '../../services/etablissements.service';
+import elevesService from '../../services/eleves.service';
+import enseignantsService from '../../services/enseignants.service';
+import classesService from '../../services/classes.service';
+import provincesService from '../../services/provinces.service';
+import toast from 'react-hot-toast';
+
+// Composants refactorisés
+import StatsCards from './components/StatsCards';
+import StatsCharts from './components/StatsCharts';
+import ProvinceNavigator from './components/ProvinceNavigator';
+import EtablissementManagement from './components/EtablissementManagement';
+import EleveManagement from './components/EleveManagement';
+import EnseignantManagement from './components/EnseignantManagement';
+import ClasseManagement from './components/ClasseManagement';
+import DocumentManagement from './components/DocumentManagement';
+import RapportsTrimestriels from './components/RapportsTrimestriels';
+import FicheAgentDetaillee from './components/FicheAgentDetaillee';
+import ControleDINACOPE from './components/ControleDINACOPE';
+import MutationsEnseignant from './components/MutationsEnseignant';
+import DashboardPaie from './components/DashboardPaie';
+import PlanningControles from './components/PlanningControles';
+import EvaluationViabilite from './components/EvaluationViabilite';
+import SuiviPresences from './components/SuiviPresences';
+import GestionAPIExterne from './components/GestionAPIExterne';
+import CarteScolaireNumerique from './components/CarteScolaireNumerique';
+import TestsCertifications from './components/TestsCertifications';
+
+const UnifiedDashboard = () => {
+  const { user, logout } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [statsSexe, setStatsSexe] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // États pour les différentes entités
+  const [etablissements, setEtablissements] = useState([]);
+  const [eleves, setEleves] = useState([]);
+  const [enseignants, setEnseignants] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [sousDivisions, setSousDivisions] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [filteredSousDivisions, setFilteredSousDivisions] = useState([]);
+  
+  // États pour les formulaires
+  const [showProvinceForm, setShowProvinceForm] = useState(false);
+  const [showEtablissementForm, setShowEtablissementForm] = useState(false);
+  const [showEleveForm, setShowEleveForm] = useState(false);
+  const [showClasseForm, setShowClasseForm] = useState(false);
+  
+  // Formulaire province
+  const [provinceForm, setProvinceForm] = useState({ nom: '', code: '' });
+  
+  // Formulaire établissement
+  const [etablissementForm, setEtablissementForm] = useState({
+    nom: '',
+    type: 'ecole_primaire',
+    categorie: 'publique',
+    adresse: '',
+    province_id: '',
+    sous_division_id: ''
+  });
+  
+  // Formulaire élève  
+  const [eleveForm, setEleveForm] = useState({
+    nom: '',
+    prenom: '',
+    email: '',
+    password: '',
+    etablissement_id: '',
+    niveau: '1ere_annee_primaire',
+    sexe: 'masculin',
+    date_naissance: '',
+    lieu_naissance: ''
+  });
+  
+  // Formulaire classe
+  const [classeForm, setClasseForm] = useState({
+    nom: '',
+    niveau: '1ere_annee_primaire',
+    etablissement_id: '',
+    annee_scolaire: '2024-2025'
+  });
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Charger les stats globales
+      const statsData = await statsService.getGlobalStats();
+      setStats(statsData);
+      
+      // Charger les stats par sexe
+      const statsSexeData = await statsService.getStatsSexe();
+      setStatsSexe(statsSexeData);
+      
+      // Charger les provinces
+      const provincesData = await provincesService.getAll();
+      setProvinces(provincesData);
+      
+      // Charger toutes les sous-divisions
+      const sousDivisionsData = await provincesService.getSousDivisions();
+      setSousDivisions(sousDivisionsData);
+      
+      // Charger selon le rôle et l'onglet actif
+      if (activeTab === 'etablissements' || user.role === 'chef_etablissement' || user.role === 'directeur_ecole') {
+        const filters = user.etablissement_id ? { etablissement_id: user.etablissement_id } : {};
+        const etablissementsData = await etablissementsService.getAll(filters);
+        setEtablissements(etablissementsData);
+      }
+      
+      if (activeTab === 'eleves' || user.role === 'enseignant' || user.role === 'eleve_primaire' || user.role === 'eleve_secondaire') {
+        const filters = user.etablissement_id ? { etablissement_id: user.etablissement_id } : {};
+        const elevesData = await elevesService.getAll(filters);
+        setEleves(elevesData);
+      }
+      
+      if (activeTab === 'enseignants') {
+        const filters = user.etablissement_id ? { etablissement_id: user.etablissement_id } : {};
+        const enseignantsData = await enseignantsService.getAll(filters);
+        setEnseignants(enseignantsData);
+      }
+      
+      if (activeTab === 'classes') {
+        const filters = user.etablissement_id ? { etablissement_id: user.etablissement_id } : {};
+        const classesData = await classesService.getAll(filters);
+        setClasses(classesData);
+      }
+      
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast.error('Erreur lors du chargement des données');
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, user.role, user.etablissement_id]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handleProvinceClick = (province) => {
+    setSelectedProvince(province);
+    const filtered = sousDivisions.filter(sd => sd.province_id === province.id);
+    setFilteredSousDivisions(filtered);
+  };
+
+  const handleProvinceBack = () => {
+    setSelectedProvince(null);
+    setFilteredSousDivisions([]);
+  };
+
+  const getRoleLabel = (role) => {
+    const labels = {
+      'ministre': 'Ministre de l\'Éducation',
+      'secretaire_general': 'Secrétaire Général',
+      'directeur_provincial': 'Directeur Provincial (DPE)',
+      'chef_sous_division': 'Chef de Sous-division',
+      'chef_etablissement': 'Chef d\'Établissement',
+      'directeur_ecole': 'Directeur d\'École',
+      'conseiller_principal_education': 'Conseiller Principal d\'Éducation',
+      'enseignant': 'Enseignant',
+      'eleve_primaire': 'Élève Primaire',
+      'eleve_secondaire': 'Élève Secondaire',
+      'parent': 'Parent',
+      'inspecteur_pedagogique': 'Inspecteur Pédagogique',
+      'agent_dinacope': 'Agent DINACOPE',
+      'personnel_administratif': 'Personnel Administratif',
+      'infirmier_scolaire': 'Infirmier Scolaire',
+      'administrateur_technique': 'Administrateur Technique'
+    };
+    return labels[role] || role;
+  };
+
+  const canManageProvinces = ['ministre', 'secretaire_general', 'administrateur_technique'].includes(user.role);
+  const canManageEtablissements = ['ministre', 'secretaire_general', 'directeur_provincial', 'chef_sous_division', 'administrateur_technique'].includes(user.role);
+  const canManageEnseignants = ['ministre', 'secretaire_general', 'directeur_provincial', 'chef_sous_division', 'chef_etablissement', 'directeur_ecole', 'administrateur_technique'].includes(user.role);
+  const canManageEleves = ['chef_etablissement', 'directeur_ecole', 'administrateur_technique'].includes(user.role);
+  const canManageClasses = ['chef_etablissement', 'directeur_ecole', 'administrateur_technique'].includes(user.role);
+  const canViewStats = !['eleve_primaire', 'eleve_secondaire', 'parent'].includes(user.role);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center relative">
+            <div className="flex items-center space-x-4">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_education-connect-5/artifacts/qyrsxof9_Screenshot%202026-03-29%20124914.png" 
+                alt="Logo RDC"
+                className="h-20 w-20 object-contain cursor-pointer hover:opacity-80 transition"
+                onClick={() => setActiveTab('dashboard')}
+                title="Retour au tableau de bord"
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Édu-Connect</h1>
+                <p className="text-sm text-gray-600 mt-1">Ministère de l'Éducation nationale et de la Nouvelle Citoyenneté - RDC</p>
+              </div>
+            </div>
+            
+            {/* Drapeau RDC centré */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2">
+              <div className="h-20 w-20 rounded-full overflow-hidden border-3 border-gray-300 shadow-lg bg-white">
+                <img 
+                  src="https://customer-assets.emergentagent.com/job_education-connect-5/artifacts/mln6iydk_Flag_of_the_Democratic_Republic_of_the_Congo.svg.png" 
+                  alt="Drapeau RDC"
+                  className="h-full w-full object-cover"
+                  style={{ objectPosition: '30% center' }}
+                  title="République Démocratique du Congo"
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user.prenom} {user.nom}</p>
+                <p className="text-xs text-gray-500">{getRoleLabel(user.role)}</p>
+              </div>
+              <button
+                onClick={logout}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                data-testid="logout-button"
+              >
+                Déconnexion
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex space-x-8 overflow-x-auto py-2">
+            {/* 1. Tableau de bord */}
+            {canViewStats && (
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'dashboard'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                📊 Tableau de bord
+              </button>
+            )}
+            
+            {/* 2. Documents */}
+            <button
+              onClick={() => setActiveTab('documents')}
+              className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                activeTab === 'documents'
+                  ? 'border-b-2 border-indigo-600 text-indigo-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              📄 Documents
+            </button>
+            
+            {/* 3. Rapports Trimestriels */}
+            {['ministre', 'secretaire_general', 'directeur_provincial', 'administrateur_technique'].includes(user.role) && (
+              <button
+                onClick={() => setActiveTab('rapports')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'rapports'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                📊 Rapports Trimestriels
+              </button>
+            )}
+            
+            {/* 4. Provinces */}
+            {canManageProvinces && (
+              <button
+                onClick={() => setActiveTab('provinces')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'provinces'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                🗺️ Provinces
+              </button>
+            )}
+            
+            {/* 5. Enseignants (avec icône africaine) */}
+            {canManageEnseignants && (
+              <button
+                onClick={() => setActiveTab('enseignants')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition flex items-center gap-2 ${
+                  activeTab === 'enseignants'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <img src="/images/african_teacher.png" alt="" className="w-5 h-5 object-contain" />
+                Enseignants
+              </button>
+            )}
+            
+            {/* 6. Élèves (avec icône africaine) */}
+            {canManageEleves && (
+              <button
+                onClick={() => setActiveTab('eleves')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition flex items-center gap-2 ${
+                  activeTab === 'eleves'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <img src="/images/african_students.png" alt="" className="w-5 h-5 object-contain" />
+                Élèves
+              </button>
+            )}
+            
+            {/* 7. Établissements */}
+            {canManageEtablissements && (
+              <button
+                onClick={() => setActiveTab('etablissements')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'etablissements'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                🏫 Établissements
+              </button>
+            )}
+            
+            {/* 8. Viabilité */}
+            {['directeur_provincial', 'ministre', 'administrateur_technique'].includes(user.role) && (
+              <button
+                onClick={() => setActiveTab('viabilite')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'viabilite'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                💰 Viabilité
+              </button>
+            )}
+            
+            {/* 9. Classes */}
+            {canManageClasses && (
+              <button
+                onClick={() => setActiveTab('classes')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'classes'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                📚 Classes
+              </button>
+            )}
+            
+            {/* 10. Présences */}
+            {['administrateur_technique', 'ministre', 'secretaire_general', 'directeur_provincial'].includes(user.role) && (
+              <button
+                onClick={() => setActiveTab('presences')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'presences'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                📅 Présences
+              </button>
+            )}
+            
+            {/* 11. Paie */}
+            {['administrateur_technique', 'ministre', 'directeur_provincial', 'agent_dinacope'].includes(user.role) && (
+              <button
+                onClick={() => setActiveTab('paie')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'paie'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                💼 Paie
+              </button>
+            )}
+            
+            {/* 12. Tests et Certifications */}
+            {['administrateur_technique', 'ministre', 'directeur_provincial', 'secretaire_general'].includes(user.role) && (
+              <button
+                onClick={() => setActiveTab('tests')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'tests'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                🎓 Tests
+              </button>
+            )}
+            
+            {/* 13. APIs Externes */}
+            {user.role === 'administrateur_technique' && (
+              <button
+                onClick={() => setActiveTab('api_externe')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'api_externe'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                🔌 APIs Externes
+              </button>
+            )}
+            
+            {/* Onglets supplémentaires spécifiques à certains rôles */}
+            {user.role === 'agent_dinacope' && (
+              <button
+                onClick={() => setActiveTab('dinacope')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'dinacope'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                🔍 Contrôle DINACOPE
+              </button>
+            )}
+            
+            {['enseignant', 'directeur_ecole', 'chef_etablissement', 'directeur_provincial', 'secretaire_general', 'ministre'].includes(user.role) && (
+              <button
+                onClick={() => setActiveTab('mutations')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'mutations'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                🔄 Mutations
+              </button>
+            )}
+            
+            {user.role === 'agent_dinacope' && (
+              <button
+                onClick={() => setActiveTab('controles_planning')}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'controles_planning'
+                    ? 'border-b-2 border-indigo-600 text-indigo-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                📅 Planning Contrôles
+              </button>
+            )}
+          </nav>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Dashboard Tab */}
+        {activeTab === 'dashboard' && canViewStats && (
+          <div className="space-y-6">
+            <StatsCards stats={stats} />
+            <StatsCharts stats={stats} statsSexe={statsSexe} />
+          </div>
+        )}
+
+        {/* Documents Tab */}
+        {activeTab === 'documents' && (
+          <DocumentManagement user={user} />
+        )}
+
+        {/* Rapports Trimestriels Tab */}
+        {activeTab === 'rapports' && (
+          <RapportsTrimestriels user={user} />
+        )}
+
+        {/* Contrôle DINACOPE Tab */}
+        {activeTab === 'dinacope' && (
+          <ControleDINACOPE user={user} />
+        )}
+
+        {/* Mutations Tab */}
+        {activeTab === 'mutations' && (
+          <MutationsEnseignant user={user} />
+        )}
+
+        {/* Paie Tab */}
+        {activeTab === 'paie' && (
+          <DashboardPaie user={user} />
+        )}
+
+        {/* Planning Contrôles Tab */}
+        {activeTab === 'controles_planning' && (
+          <PlanningControles user={user} />
+        )}
+
+        {/* Viabilité Tab */}
+        {activeTab === 'viabilite' && (
+          <EvaluationViabilite user={user} />
+        )}
+
+        {/* Provinces Tab */}
+        {activeTab === 'provinces' && canManageProvinces && (
+          <ProvinceNavigator
+            provinces={provinces}
+            sousDivisions={sousDivisions}
+            selectedProvince={selectedProvince}
+            filteredSousDivisions={filteredSousDivisions}
+            showProvinceForm={showProvinceForm}
+            provinceForm={provinceForm}
+            setProvinceForm={setProvinceForm}
+            setShowProvinceForm={setShowProvinceForm}
+            onProvinceClick={handleProvinceClick}
+            onBack={handleProvinceBack}
+            loadData={loadData}
+          />
+        )}
+
+        {/* Établissements Tab */}
+        {activeTab === 'etablissements' && (
+          <EtablissementManagement
+            etablissements={etablissements}
+            provinces={provinces}
+            sousDivisions={sousDivisions}
+            showForm={showEtablissementForm}
+            form={etablissementForm}
+            setForm={setEtablissementForm}
+            setShowForm={setShowEtablissementForm}
+            setSousDivisions={setSousDivisions}
+            loadData={loadData}
+            canManage={canManageEtablissements}
+            onOpenCarte={() => setActiveTab('carte_scolaire')}
+          />
+        )}
+
+        {/* Carte Scolaire Numérique Tab */}
+        {activeTab === 'carte_scolaire' && (
+          <CarteScolaireNumerique />
+        )}
+
+        {/* Tests et Certifications Tab (Module 4) */}
+        {activeTab === 'tests' && (
+          <TestsCertifications />
+        )}
+
+        {/* Élèves Tab */}
+        {activeTab === 'eleves' && (
+          <EleveManagement
+            eleves={eleves}
+            etablissements={etablissements}
+            showForm={showEleveForm}
+            form={eleveForm}
+            setForm={setEleveForm}
+            setShowForm={setShowEleveForm}
+            loadData={loadData}
+            canManage={canManageEleves}
+          />
+        )}
+
+        {/* Enseignants Tab */}
+        {activeTab === 'enseignants' && (
+          <EnseignantManagement enseignants={enseignants} />
+        )}
+
+        {/* Classes Tab */}
+        {activeTab === 'classes' && (
+          <ClasseManagement
+            classes={classes}
+            etablissements={etablissements}
+            showForm={showClasseForm}
+            form={classeForm}
+            setForm={setClasseForm}
+            setShowForm={setShowClasseForm}
+            loadData={loadData}
+            canManage={canManageClasses}
+          />
+        )}
+
+        {/* Présences Tab (Module 3 - Scolarité) */}
+        {activeTab === 'presences' && (
+          <SuiviPresences 
+            etablissements={etablissements}
+            classes={classes}
+          />
+        )}
+
+        {/* Gestion API Externe Tab (Module 3 - Scolarité) */}
+        {activeTab === 'api_externe' && (
+          <GestionAPIExterne />
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default UnifiedDashboard;

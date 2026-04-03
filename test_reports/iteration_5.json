@@ -1,0 +1,93 @@
+{
+  "summary": "Completed testing of BUG FIX (services.service.js migration) and NEW FEATURE (ephemeral demo users). All tests passed - 12/12 backend tests, all frontend flows working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_demo_users.py",
+    "/app/test_reports/pytest/pytest_demo_users.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "services.service.js correctly migrated from raw axios+broken token to api instance with withCredentials:true",
+    "routes_demo.py properly implements ephemeral user generation with 24h expiry after first login",
+    "server.py login function correctly handles ephemeral user expiry check and first_login_at activation",
+    "All data-testid attributes present in inscription components for testing"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (all flows working)"
+  },
+  "test_credentials": {
+    "minister": {
+      "phone": "+243 820 000 010",
+      "password": "Ministre2026!",
+      "role": "ministre"
+    },
+    "demo_users": {
+      "phone_pattern": "+243 900 000 XX",
+      "password": "Demo2026!",
+      "note": "Generated via POST /api/demo/generer"
+    }
+  },
+  "seed_data_creation": "No new seed data created - demo users are ephemeral and cleaned up after tests",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All features tested and working: 1) BUG FIX: Inscription step 2 now shows services grid with 8 Directions Générales (DGA, DGETFP, DGPD, DGEG, DGEC, DGCFEE, DGTIC, DDR). 2) NEW FEATURE: Ephemeral demo users can be generated (POST /api/demo/generer), listed (GET /api/demo/liste), and deleted (DELETE /api/demo/supprimer). Demo users have 24h validity after first login. 3) REGRESSION: Minister login works correctly.",
+  "features_tested": {
+    "bug_fix_services_step2": {
+      "status": "PASS",
+      "details": [
+        "Navigate to /inscription, fill step 1 form and submit",
+        "Step 2 loads with services grid showing 8 Directions Générales",
+        "DGA service card visible and selectable",
+        "services.service.js now uses api instance with withCredentials:true"
+      ]
+    },
+    "new_feature_demo_users_generation": {
+      "status": "PASS",
+      "details": [
+        "POST /api/demo/generer with {nombre: 3, service_code: 'DGA', password: 'Demo2026!'} creates Test01, Test02, Test03",
+        "Response includes phone numbers (+243 900 000 01, etc.) and common password",
+        "Unauthorized requests correctly rejected (401)",
+        "Invalid count (0 or >20) correctly rejected (400)"
+      ]
+    },
+    "new_feature_demo_users_login": {
+      "status": "PASS",
+      "details": [
+        "Demo user Test01 can login with +243 900 000 01 / Demo2026!",
+        "First login activates 24h timer (first_login_at and expires_at set)",
+        "GET /api/demo/liste shows statut 'actif' with temps_restant ~24h"
+      ]
+    },
+    "new_feature_demo_users_deletion": {
+      "status": "PASS",
+      "details": [
+        "DELETE /api/demo/supprimer removes all demo users",
+        "Subsequent GET /api/demo/liste returns total: 0",
+        "Unauthorized deletion correctly rejected (401)"
+      ]
+    },
+    "regression_minister_login": {
+      "status": "PASS",
+      "details": [
+        "Login with +243 820 000 010 / Ministre2026! works",
+        "Redirects to /dashboard after login",
+        "User name 'Raïssa Malu' displayed correctly",
+        "Dashboard loads with statistics and charts"
+      ]
+    }
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": []
+  }
+}

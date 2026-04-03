@@ -274,9 +274,9 @@ def main():
     
     # Essayer plusieurs comptes
     login_attempts = [
+        ("admin@educonnect.cd", "Admin@EduConnect2026!"),
         ("+243 820 000 010", "Ministre2026!"),
         ("+243 900 000 01", "Demo2026!"),
-        ("admin@educonnect.cd", "Admin2026!"),
         ("ministre@educonnect.cd", "Ministre2026!")
     ]
     

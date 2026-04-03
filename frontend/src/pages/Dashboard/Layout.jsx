@@ -113,7 +113,6 @@ const DashboardLayout = () => {
     { path: '/dashboard/enseignants', label: '👨‍🏫 Enseignants', condition: true },
     { path: '/dashboard/eleves', label: '👨‍🎓 Élèves', condition: true },
     { path: '/dashboard/etablissements', label: '🏫 Établissements', condition: true },
-    { path: '/dashboard/carte-scolaire', label: '🗺️ Carte Scolaire', condition: ['administrateur_technique', 'ministre', 'directeur_provincial', 'secretaire_general'].includes(user.role) },
     { path: '/dashboard/viabilite', label: '✅ Viabilité', condition: ['administrateur_technique', 'ministre', 'directeur_provincial', 'secretaire_general', 'agent_dinacope'].includes(user.role) },
     { path: '/dashboard/classes', label: '🎓 Classes', condition: true },
     { path: '/dashboard/presences', label: '📊 Présences', condition: ['administrateur_technique', 'directeur_provincial', 'chef_etablissement', 'directeur_ecole', 'enseignant'].includes(user.role) },

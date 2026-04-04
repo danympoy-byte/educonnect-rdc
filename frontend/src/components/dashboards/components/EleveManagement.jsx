@@ -243,7 +243,7 @@ const EleveManagement = ({
             {eleves.map((eleve) => (
               <tr key={eleve.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{eleve.ine}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{eleve.user_id}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{eleve.nom_complet || `${eleve.prenom || ''} ${eleve.nom || ''}`}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{eleve.niveau}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{eleve.date_naissance}</td>
               </tr>

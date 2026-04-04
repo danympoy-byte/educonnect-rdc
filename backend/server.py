@@ -521,7 +521,7 @@ async def create_eleve(data: EleveCreate, current_user: dict = Depends(get_curre
     return eleve
 
 
-@api_router.get("/eleves", response_model=List[Eleve])
+@api_router.get("/eleves")
 async def get_eleves(
     etablissement_id: Optional[str] = None,
     classe_id: Optional[str] = None,
@@ -530,7 +530,7 @@ async def get_eleves(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Récupérer tous les élèves avec pagination
+    Récupérer tous les élèves avec pagination et informations utilisateur
     
     Args:
         etablissement_id: Filtrer par établissement
@@ -549,6 +549,17 @@ async def get_eleves(
     skip = (page - 1) * page_size
     
     eleves = await eleves_collection.find(query, {"_id": 0}).skip(skip).limit(page_size).to_list(page_size)
+    
+    # Si les élèves n'ont pas de nom_complet, essayer de récupérer depuis users
+    for eleve in eleves:
+        if not eleve.get("nom_complet"):
+            user = await users_collection.find_one({"id": eleve.get("user_id")}, {"_id": 0, "hashed_password": 0})
+            if user:
+                eleve["nom"] = user.get("nom", "")
+                eleve["prenom"] = user.get("prenom", "")
+                eleve["postnom"] = user.get("postnom", "")
+                eleve["nom_complet"] = f"{user.get('prenom', '')} {user.get('nom', '')} {user.get('postnom', '')}".strip()
+    
     return eleves
 
 

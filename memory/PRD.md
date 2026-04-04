@@ -1,15 +1,7 @@
 # Édu-Connect - Plateforme Éducative Nationale RDC
 
 ## Original Problem Statement
-Correction de bugs + enrichissement avec données réalistes RDC pour la plateforme Édu-Connect:
-1. GED Zone Verte - "Erreur de connexion" lors du clic
-2. Page Viabilité - Ajouter graphique camembert répartition niveaux viabilité
-3. Page Conversation - Recherche utilisateurs ne fonctionne pas
-4. Page Inscription - Impossible de sélectionner un service
-5. Intégration données SECOPE/DINACOPE (établissements, enseignants, élèves, paie)
-6. Page Provinces - Afficher les 60 provinces éducationnelles officielles
-7. Graphiques d'évolution temporelle sur le dashboard
-8. Structure de notes/évaluations pour les élèves
+Plateforme de gestion éducative pour la RDC intégrant données SECOPE/DINACOPE, gestion documentaire, messagerie, et analytics.
 
 ## Architecture
 - **Frontend**: React 18 + Tailwind CSS + Recharts
@@ -17,81 +9,58 @@ Correction de bugs + enrichissement avec données réalistes RDC pour la platefo
 - **Database**: MongoDB (db: educonnect_rdc)
 - **Authentication**: JWT avec cookies httpOnly
 
+## Core Requirements
+- Authentification sécurisée avec rôles multiples
+- GED (Gestion Électronique des Documents) - Zones Bleue/Verte
+- Évaluation de viabilité des établissements
+- Messagerie interne
+- Dashboard avec graphiques dynamiques + évolution temporelle
+- Page Provinces (60 provinces éducationnelles)
+- Page Évaluations (notes, bulletins, statistiques)
+- Inscription multi-étapes avec rôles provinciaux/établissement
+- Partage de Données (sources, endpoints, clés API)
+
+## Rôles et Accès
+| Rôle | Accès |
+|------|-------|
+| Ministre / Ministre Provincial / PROVED / Admin Tech | Tous les onglets |
+| IPP | Tout sauf Paie, Partage de Données |
+| DIPROCOPE | Tout sauf Partage de Données |
+| Chef Étab / Directeur École / CPE | Tout sauf Documents, Rapports, Paie, Partage de Données |
+| Enseignant | Tout sauf Documents, Rapports, Partage de Données (mais avec Paie) |
+
 ## What's Been Implemented
 
-### 03/04/2026 - Bug Fixes Session
-1. GED Zone Verte CORRIGÉ - ContexteSwitcher.jsx fix
-2. Graphique Viabilité CORRIGÉ - EvaluationViabilite.jsx fix
-3. Recherche Utilisateurs CORRIGÉ - routes_chat.py fix
-4. Sélection Service CORRIGÉ - seed_services.py (51 services)
+### Bugs corrigés
+- GED Zone Verte, Graphique Viabilité, Recherche Chat, Sélection Service
 
-### 03/04/2026 - Data Seeding & Dashboard
-- Retrait onglet "Carte Scolaire" du menu principal
-- Dashboard Paie avec stats SECOPE mock
-- Seed 558 établissements, 467 enseignants, 15494 élèves, 330 classes
-- Graphiques dashboard liés dynamiquement aux collections MongoDB
+### Data Seeding
+- 558 établissements, 467 enseignants, 15 494 élèves, 330 classes
+- 59 238 notes, 6 000 bulletins (15 matières, 3 trimestres)
+- Dates réparties sur 12 mois pour l'évolution temporelle
 
-### 04/04/2026 - Page Provinces Éducationnelles
-- Refonte complète de la page Provinces (60 P.E., 26 P.A., 567 S.D.)
-- Navigation 3 niveaux avec contacts PROVED/IPP/DIPROCOPE
-- Tests : 10/10 passés (iteration_8.json)
-
-### 04/04/2026 - Evolution Temporelle + Evaluations
-- **Graphiques d'évolution temporelle** sur le dashboard :
-  - AreaChart des effectifs cumulés (élèves, enseignants, établissements) sur 12 mois
-  - BarChart des nouvelles inscriptions mensuelles
-  - Endpoint GET /api/stats/evolution
-  - Dates réparties sur 12 mois pour un rendu réaliste
-- **Page Évaluations et Notes** (/dashboard/evaluations) :
-  - Accessible via bouton sur page Élèves (pas d'onglet menu)
-  - Bannière d'avertissement : données indicatives, seul le bulletin fait foi
-  - 59 238 notes + 6 000 bulletins générés (seed_notes.py)
-  - Stats : Moyenne générale (11.74/20), 15 matières, 3 trimestres
-  - Radar chart, bar charts, distribution des notes, table détaillée
-  - 3 onglets : Vue Générale, Par Matière, Distribution
-  - Endpoint GET /api/stats/notes
-- Tests : 100% passés (iteration_9.json) - backend 13/13, frontend complet
+### Fonctionnalités complètes
+- Page Provinces (60 P.E., 26 P.A., navigation 3 niveaux)
+- Graphiques d'évolution temporelle (AreaChart + BarChart)
+- Page Évaluations (radar, distribution, table par matière)
+- Inscription étape 2 avec 3 catégories (Provincial, Établissement, Central)
+- Navigation basée sur les rôles (Layout.jsx)
+- Page unifiée "Partage de Données" (Sources, Endpoints, Clés API)
 
 ## Prioritized Backlog
 
-### P0 (Critical) - All Completed
-- [x] Zone Verte/Bleue switching
-- [x] Viabilité pie chart
-- [x] User search in conversations
-- [x] Service selection in registration
-- [x] Page Provinces avec données DINACOPE
-- [x] Graphiques d'évolution temporelle
-- [x] Structure de notes/évaluations
-
 ### P1 (Important) - Future
-- [ ] Meilleure distribution des données de test entre provinces
 - [ ] Saisie manuelle de notes par les enseignants (formulaire CRUD)
-- [ ] Génération et téléchargement de bulletins PDF individuels
+- [ ] Génération et téléchargement de bulletins PDF
+- [ ] Meilleure distribution des données entre provinces
+- [ ] Endpoints d'ingestion réels (POST /api/externe/*)
 
 ### P2 (Nice to have)
-- [ ] Connexion à l'API SECOPE réelle
-- [ ] Export des données en PDF
-- [ ] Statistiques avancées par établissement
+- [ ] Connexion API SECOPE réelle
+- [ ] Carte interactive RDC
 - [ ] Mode hors ligne
-- [ ] Carte interactive RDC pour la page Provinces
-
-## Key Files
-- `/app/frontend/src/pages/Dashboard/Overview.jsx` - Dashboard principal
-- `/app/frontend/src/components/dashboards/components/StatsCharts.jsx` - Graphiques (+ evolution)
-- `/app/frontend/src/pages/Dashboard/Eleves.jsx` - Page élèves (bouton evaluations)
-- `/app/frontend/src/pages/Dashboard/Evaluations.jsx` - Page evaluations/notes
-- `/app/frontend/src/pages/Dashboard/Provinces.jsx` - Page provinces refaite
-- `/app/frontend/src/data/provincesEducationnelles.js` - Données 60 P.E.
-- `/app/backend/server.py` - API (stats/evolution, stats/notes, etc.)
-- `/app/backend/seed_notes.py` - Seed 59k notes + 6k bulletins
-- `/app/backend/seed_etablissements.py` - Seed 558 écoles
-- `/app/backend/seed_enseignants_eleves.py` - Seed enseignants/élèves/classes
 
 ## Key API Endpoints
-- `GET /api/stats/global` - Métriques globales dashboard
-- `GET /api/stats/sexe` - Répartition par sexe
-- `GET /api/stats/evolution` - Évolution temporelle 12 mois
-- `GET /api/stats/notes` - Statistiques notes/évaluations
-- `POST /api/auth/login` - Authentification
-- `GET /api/notes` - Liste des notes
-- `GET /api/bulletins` - Liste des bulletins
+- GET /api/stats/global, /stats/sexe, /stats/evolution, /stats/notes
+- POST /api/auth/login, /api/inscription/etape1, /api/inscription/etape2
+- GET /api/notes, /api/bulletins

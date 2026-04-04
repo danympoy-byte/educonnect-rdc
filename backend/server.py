@@ -914,20 +914,14 @@ async def get_stats_sexe(current_user: dict = Depends(get_current_user)):
                     province_sexe[province_admin] = {"masculin": 0, "feminin": 0}
                 province_sexe[province_admin][sexe] += count
     
-    # ENSEIGNANTS - Statistiques par sexe
-    total_enseignants_masculin = await users_collection.count_documents({
-        "role": "enseignant",
-        "sexe": "masculin"
-    })
-    total_enseignants_feminin = await users_collection.count_documents({
-        "role": "enseignant",
-        "sexe": "feminin"
-    })
+    # ENSEIGNANTS - Statistiques par sexe depuis la collection enseignants
+    total_enseignants_masculin = await enseignants_collection.count_documents({"sexe": "masculin"})
+    total_enseignants_feminin = await enseignants_collection.count_documents({"sexe": "feminin"})
     
     # Enseignants par province ADMINISTRATIVE
     enseignants_par_province = {}
-    enseignants_list = await users_collection.find(
-        {"role": "enseignant"},
+    enseignants_list = await enseignants_collection.find(
+        {},
         {"_id": 0, "etablissement_id": 1, "sexe": 1}
     ).to_list(1000)
     

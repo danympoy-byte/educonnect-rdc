@@ -23,7 +23,7 @@ from utils import generate_ine, calculate_moyenne, get_appreciation
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'rie_education')]
+db = client[os.environ.get('DB_NAME', 'educonnect_rdc')]
 
 router = APIRouter()
 
@@ -564,6 +564,294 @@ async def recevoir_affectations(
 
 
 # ============================================
+# RÉCEPTION DES ÉVALUATIONS (depuis outils de tests en ligne)
+# ============================================
+
+@router.post("/api/externe/evaluations")
+async def recevoir_evaluations(
+    request: Request,
+    file: Optional[UploadFile] = File(None),
+    api_client: dict = Depends(require_permission("notes"))
+):
+    """
+    Recevoir des résultats d'évaluations depuis des outils de tests en ligne.
+    Accepte JSON, XML, CSV.
+    
+    Format JSON attendu:
+    {
+        "etablissement_id": "string",
+        "classe_id": "string",
+        "matiere": "string",
+        "trimestre": "trimestre_1",
+        "annee_scolaire": "2025-2026",
+        "enseignant_id": "string",
+        "notes": [
+            {"eleve_id": "string", "note": 15.5, "commentaire": "optional"}
+        ]
+    }
+    """
+    log_entry = {
+        "id": str(uuid.uuid4()),
+        "api_client_id": api_client['id'],
+        "endpoint": "/api/externe/evaluations",
+        "methode": "POST",
+        "format_donnees": "",
+        "statut": "success",
+        "nb_enregistrements": 0,
+        "erreurs": [],
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    try:
+        if file:
+            raw_data = await DataParser.parse_csv(file)
+            log_entry['format_donnees'] = 'csv'
+        else:
+            content_type = request.headers.get('content-type', 'application/json')
+            format_type = DataParser.detect_format(content_type)
+            log_entry['format_donnees'] = format_type
+            
+            body = await request.body()
+            content = body.decode('utf-8')
+            
+            if format_type == 'json':
+                raw_data = DataParser.parse_json(content)
+            elif format_type == 'xml':
+                raw_data = DataParser.parse_xml(content)
+            else:
+                raise HTTPException(status_code=400, detail="Format non supporté")
+        
+        notes_inserees = []
+        erreurs = []
+        
+        for idx, item in enumerate(raw_data):
+            try:
+                # Si le format est groupé (un objet avec un tableau "notes")
+                if 'notes' in item and isinstance(item['notes'], list):
+                    etab_id = item.get('etablissement_id', '')
+                    classe_id = item.get('classe_id', '')
+                    matiere = item.get('matiere', '')
+                    trimestre = item.get('trimestre', 'trimestre_1')
+                    annee = item.get('annee_scolaire', '2025-2026')
+                    ens_id = item.get('enseignant_id', '')
+                    
+                    if not matiere:
+                        erreurs.append(f"Bloc {idx + 1}: Matière manquante")
+                        continue
+                    
+                    for n_idx, note_item in enumerate(item['notes']):
+                        try:
+                            eleve_id = note_item.get('eleve_id', '')
+                            note_val = float(note_item.get('note', 0))
+                            
+                            if not eleve_id:
+                                erreurs.append(f"Bloc {idx + 1}, note {n_idx + 1}: eleve_id manquant")
+                                continue
+                            if note_val < 0 or note_val > 20:
+                                erreurs.append(f"Bloc {idx + 1}, note {n_idx + 1}: note invalide ({note_val})")
+                                continue
+                            
+                            note = {
+                                "id": str(uuid.uuid4()),
+                                "eleve_id": eleve_id,
+                                "classe_id": classe_id,
+                                "matiere": matiere,
+                                "note": note_val,
+                                "coefficient": float(note_item.get('coefficient', 1.0)),
+                                "trimestre": trimestre,
+                                "annee_scolaire": annee,
+                                "enseignant_id": ens_id,
+                                "commentaire": note_item.get('commentaire'),
+                                "created_at": datetime.now(timezone.utc).isoformat(),
+                                "source": "api_externe",
+                                "api_client_id": api_client['id']
+                            }
+                            await db.notes.insert_one(note)
+                            notes_inserees.append(note['id'])
+                        except Exception as e:
+                            erreurs.append(f"Bloc {idx + 1}, note {n_idx + 1}: {str(e)}")
+                else:
+                    # Format plat (une note par ligne)
+                    validated = DataValidator.validate_note(item)
+                    note = {
+                        "id": str(uuid.uuid4()),
+                        "eleve_id": validated['eleve_id'],
+                        "classe_id": validated['classe_id'],
+                        "matiere": validated['matiere'],
+                        "note": validated['note'],
+                        "coefficient": validated['coefficient'],
+                        "trimestre": validated['trimestre'],
+                        "annee_scolaire": validated['annee_scolaire'],
+                        "enseignant_id": validated['enseignant_id'],
+                        "commentaire": validated.get('commentaire'),
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                        "source": "api_externe",
+                        "api_client_id": api_client['id']
+                    }
+                    await db.notes.insert_one(note)
+                    notes_inserees.append(note['id'])
+                    
+            except Exception as e:
+                erreurs.append(f"Ligne {idx + 1}: {str(e)}")
+        
+        log_entry['nb_enregistrements'] = len(notes_inserees)
+        log_entry['erreurs'] = erreurs
+        if erreurs:
+            log_entry['statut'] = 'partial' if notes_inserees else 'error'
+        
+        await db.logs_api_externe.insert_one(log_entry)
+        
+        return {
+            "success": True,
+            "nb_notes_inserees": len(notes_inserees),
+            "nb_erreurs": len(erreurs),
+            "erreurs": erreurs[:10],
+            "message": f"{len(notes_inserees)} notes d'évaluation insérées avec succès"
+        }
+        
+    except Exception as e:
+        log_entry['statut'] = 'error'
+        log_entry['erreurs'] = [str(e)]
+        await db.logs_api_externe.insert_one(log_entry)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# RÉCEPTION DES EFFECTIFS (mise à jour depuis systèmes de gestion)
+# ============================================
+
+@router.post("/api/externe/effectifs")
+async def recevoir_effectifs(
+    request: Request,
+    file: Optional[UploadFile] = File(None),
+    api_client: dict = Depends(require_permission("inscriptions"))
+):
+    """
+    Recevoir les mises à jour d'effectifs depuis les systèmes de gestion scolaire.
+    Accepte JSON, XML, CSV.
+    
+    Format JSON attendu:
+    [
+        {
+            "etablissement_id": "string",
+            "total_eleves": 450,
+            "total_enseignants": 28,
+            "total_classes": 12,
+            "date_maj": "2026-04-04",
+            "details_par_niveau": {
+                "1ere_annee_primaire": 45,
+                "2eme_annee_primaire": 50
+            }
+        }
+    ]
+    """
+    log_entry = {
+        "id": str(uuid.uuid4()),
+        "api_client_id": api_client['id'],
+        "endpoint": "/api/externe/effectifs",
+        "methode": "POST",
+        "format_donnees": "",
+        "statut": "success",
+        "nb_enregistrements": 0,
+        "erreurs": [],
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    try:
+        if file:
+            raw_data = await DataParser.parse_csv(file)
+            log_entry['format_donnees'] = 'csv'
+        else:
+            content_type = request.headers.get('content-type', 'application/json')
+            format_type = DataParser.detect_format(content_type)
+            log_entry['format_donnees'] = format_type
+            
+            body = await request.body()
+            content = body.decode('utf-8')
+            
+            if format_type == 'json':
+                raw_data = DataParser.parse_json(content)
+            elif format_type == 'xml':
+                raw_data = DataParser.parse_xml(content)
+            else:
+                raise HTTPException(status_code=400, detail="Format non supporté")
+        
+        effectifs_traites = []
+        erreurs = []
+        
+        for idx, item in enumerate(raw_data):
+            try:
+                etab_id = item.get('etablissement_id', '')
+                if not etab_id:
+                    erreurs.append(f"Ligne {idx + 1}: etablissement_id manquant")
+                    continue
+                
+                # Vérifier que l'établissement existe
+                etab = await db.etablissements.find_one({"id": etab_id}, {"_id": 0, "id": 1, "nom": 1})
+                if not etab:
+                    erreurs.append(f"Ligne {idx + 1}: Établissement introuvable ({etab_id})")
+                    continue
+                
+                # Stocker le snapshot des effectifs
+                snapshot = {
+                    "id": str(uuid.uuid4()),
+                    "etablissement_id": etab_id,
+                    "total_eleves": int(item.get('total_eleves', 0)),
+                    "total_enseignants": int(item.get('total_enseignants', 0)),
+                    "total_classes": int(item.get('total_classes', 0)),
+                    "date_maj": item.get('date_maj', datetime.now(timezone.utc).strftime('%Y-%m-%d')),
+                    "details_par_niveau": item.get('details_par_niveau', {}),
+                    "source": "api_externe",
+                    "api_client_id": api_client['id'],
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                }
+                
+                await db.effectifs_snapshots.insert_one(snapshot)
+                
+                # Mettre à jour les compteurs de l'établissement
+                update_fields = {}
+                if item.get('total_eleves'):
+                    update_fields['effectif_eleves'] = int(item['total_eleves'])
+                if item.get('total_enseignants'):
+                    update_fields['effectif_enseignants'] = int(item['total_enseignants'])
+                if item.get('total_classes'):
+                    update_fields['effectif_classes'] = int(item['total_classes'])
+                update_fields['derniere_maj_effectifs'] = datetime.now(timezone.utc).isoformat()
+                
+                if update_fields:
+                    await db.etablissements.update_one(
+                        {"id": etab_id},
+                        {"$set": update_fields}
+                    )
+                
+                effectifs_traites.append(etab_id)
+                
+            except Exception as e:
+                erreurs.append(f"Ligne {idx + 1}: {str(e)}")
+        
+        log_entry['nb_enregistrements'] = len(effectifs_traites)
+        log_entry['erreurs'] = erreurs
+        if erreurs:
+            log_entry['statut'] = 'partial' if effectifs_traites else 'error'
+        
+        await db.logs_api_externe.insert_one(log_entry)
+        
+        return {
+            "success": True,
+            "nb_etablissements_traites": len(effectifs_traites),
+            "nb_erreurs": len(erreurs),
+            "erreurs": erreurs[:10],
+            "message": f"Effectifs mis à jour pour {len(effectifs_traites)} établissement(s)"
+        }
+        
+    except Exception as e:
+        log_entry['statut'] = 'error'
+        log_entry['erreurs'] = [str(e)]
+        await db.logs_api_externe.insert_one(log_entry)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
 # STATISTIQUES DE PRÉSENCE
 # ============================================
 
@@ -660,16 +948,83 @@ async def obtenir_statistiques_presence(
 # ============================================
 
 # Fonctionnalité désactivée à la demande de l'utilisateur
-# @router.post("/api/bulletins/generer-automatique")
-# async def generer_bulletins_automatique(
-#     classe_id: str,
-#     trimestre: str,
-#     annee_scolaire: str,
-#     current_user: dict = Depends(get_current_user)
-# ):
-#     """
-#     Générer automatiquement les bulletins pour une classe
-#     en se basant sur les notes reçues
-#     """
-#     pass
+
+
+# ============================================
+# STATUT DES SOURCES DE DONNÉES
+# ============================================
+
+@router.get("/api/externe/sources/status")
+async def get_sources_status(
+    current_user: dict = Depends(get_current_user)
+):
+    """Obtenir le statut des sources de données externes"""
+    
+    # Compter les clients API actifs
+    nb_clients = await db.api_clients.count_documents({"actif": True})
+    
+    # Derniers logs par endpoint
+    endpoints = [
+        "/api/externe/notes", "/api/externe/evaluations",
+        "/api/externe/presences", "/api/externe/effectifs",
+        "/api/externe/inscriptions", "/api/externe/affectations"
+    ]
+    
+    sources = []
+    for ep in endpoints:
+        last_log = await db.logs_api_externe.find_one(
+            {"endpoint": ep}, {"_id": 0}
+        )
+        total_logs = await db.logs_api_externe.count_documents({"endpoint": ep})
+        total_success = await db.logs_api_externe.count_documents({"endpoint": ep, "statut": "success"})
+        total_records = 0
+        
+        pipeline = [
+            {"$match": {"endpoint": ep}},
+            {"$group": {"_id": None, "total": {"$sum": "$nb_enregistrements"}}}
+        ]
+        agg = await db.logs_api_externe.aggregate(pipeline).to_list(1)
+        if agg:
+            total_records = agg[0].get("total", 0)
+        
+        sources.append({
+            "endpoint": ep,
+            "nom": ep.split("/")[-1].replace("-", " ").title(),
+            "nb_appels": total_logs,
+            "nb_succes": total_success,
+            "nb_enregistrements_total": total_records,
+            "dernier_appel": last_log.get("timestamp") if last_log else None,
+            "dernier_statut": last_log.get("statut") if last_log else "jamais_utilise"
+        })
+    
+    # Stats globales
+    total_logs = await db.logs_api_externe.count_documents({})
+    total_presences = await db.presences.count_documents({})
+    total_effectifs_snapshots = await db.effectifs_snapshots.count_documents({})
+    
+    return {
+        "nb_clients_api_actifs": nb_clients,
+        "sources": sources,
+        "stats_globales": {
+            "total_appels_api": total_logs,
+            "total_presences_enregistrees": total_presences,
+            "total_snapshots_effectifs": total_effectifs_snapshots
+        }
+    }
+
+
+@router.get("/api/externe/logs")
+async def get_logs_externes(
+    limit: int = 50,
+    endpoint: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Obtenir les logs des appels API externes"""
+    query = {}
+    if endpoint:
+        query["endpoint"] = endpoint
+    
+    logs = await db.logs_api_externe.find(query, {"_id": 0}).sort("timestamp", -1).limit(limit).to_list(limit)
+    return {"logs": logs, "total": len(logs)}
+
 

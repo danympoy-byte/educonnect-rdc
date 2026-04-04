@@ -1,0 +1,95 @@
+{
+  "summary": "Comprehensive testing of external data ingestion endpoints (Module 3 - Scolarité). All 18 backend tests passed (100%). Frontend Partage de Données page verified with real-time data from /api/externe/sources/status and /api/externe/logs endpoints.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+
+  "passed_tests": [
+    "POST /api/externe/presences without auth returns 401",
+    "POST /api/externe/evaluations without auth returns 401",
+    "POST /api/externe/effectifs without auth returns 401",
+    "POST with invalid Basic Auth credentials returns 401",
+    "POST /api/externe/presences accepts JSON array with valid auth",
+    "POST /api/externe/presences returns correct success count",
+    "POST /api/externe/evaluations accepts grouped format with notes array",
+    "POST /api/externe/evaluations validates note range (rejects >20)",
+    "POST /api/externe/effectifs accepts valid etablissement_id",
+    "POST /api/externe/effectifs rejects non-existent etablissement_id with error",
+    "POST /api/externe/effectifs reports error for missing etablissement_id",
+    "GET /api/externe/sources/status returns all 6 endpoints with call counts",
+    "GET /api/externe/sources/status shows accurate call counts and record counts",
+    "GET /api/externe/logs returns recent API call logs",
+    "GET /api/externe/logs filters by endpoint correctly",
+    "POST /api/externe/presences creates log entry in logs_api_externe collection",
+    "POST /api/externe/evaluations creates log entry in logs_api_externe collection",
+    "POST /api/externe/effectifs creates log entry in logs_api_externe collection",
+    "Frontend: Login as admin successful",
+    "Frontend: Partage de Données page loads with real-time stats (1 client, 14 appels, 8 presences)",
+    "Frontend: All 4 tabs present (Sources de Données, Endpoints d'Ingestion, Journal d'Activité, Clés API)",
+    "Frontend: Sources tab shows 6 source cards with live data from /api/externe/sources/status",
+    "Frontend: Endpoints tab documents all 4 POST endpoints with examples",
+    "Frontend: Logs tab shows 14 log entries from /api/externe/logs",
+    "Frontend: Logs tab has Actualiser (refresh) button"
+  ],
+
+  "test_report_links": [
+    "/app/backend/tests/test_externe_ingestion.py",
+    "/app/test_reports/pytest/pytest_externe_ingestion.xml"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [],
+
+  "updated_files": [
+    "/app/backend/tests/test_externe_ingestion.py"
+  ],
+
+  "success_rate": {
+    "backend": "100% (18/18 tests passed)",
+    "frontend": "100% (all features verified)"
+  },
+
+  "test_credentials": {
+    "admin_login": "admin@educonnect.cd / Admin@EduConnect2026!",
+    "api_client_basic_auth": "gestion_scolaire_test / TestApiKey2026!",
+    "real_etablissement_id": "cbba70b6-c421-4686-a619-91964953e52d"
+  },
+
+  "seed_data_creation": "Test data created with TEST_ prefix during backend tests (presences, evaluations, effectifs)",
+
+  "retest_needed": false,
+
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "External data ingestion endpoints fully tested. POST endpoints (/api/externe/presences, /api/externe/evaluations, /api/externe/effectifs) accept JSON with Basic Auth, validate data, and log to logs_api_externe collection. GET endpoints (/api/externe/sources/status, /api/externe/logs) return real-time stats and logs. Frontend Partage de Données page at /dashboard/partage-donnees shows live data from these endpoints. API client credentials: gestion_scolaire_test / TestApiKey2026! with permissions ['notes','presences','inscriptions','affectations'].",
+
+  "test_details": {
+    "backend_endpoints_tested": {
+      "POST /api/externe/presences": "Accepts JSON array of attendance records, returns success count, logs to DB",
+      "POST /api/externe/evaluations": "Accepts grouped format with notes array, validates note range 0-20",
+      "POST /api/externe/effectifs": "Validates etablissement_id exists in DB, updates effectif counts",
+      "GET /api/externe/sources/status": "Returns status of all 6 endpoints with call counts, record counts, last call date",
+      "GET /api/externe/logs": "Returns recent API call logs with filtering by endpoint"
+    },
+    "auth_verification": {
+      "without_auth": "All POST endpoints return 401",
+      "invalid_credentials": "Returns 401",
+      "valid_basic_auth": "Accepts requests and processes data"
+    },
+    "frontend_verification": {
+      "sources_tab": "Shows 6 source cards with real-time data (Notes, Evaluations, Presences, Effectifs, Inscriptions, Affectations)",
+      "endpoints_tab": "Documents 4 POST endpoints with JSON examples and curl commands",
+      "logs_tab": "Shows activity journal with date, endpoint, format, status, records, errors",
+      "stats_cards": "Shows Clients API Actifs (1), Total Appels API (14), Presences Enregistrees (8)"
+    }
+  }
+}

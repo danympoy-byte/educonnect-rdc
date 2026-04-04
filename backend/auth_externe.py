@@ -13,7 +13,7 @@ security = HTTPBasic()
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'rie_education')]
+db = client[os.environ.get('DB_NAME', 'educonnect_rdc')]
 
 
 async def verify_api_client(credentials: HTTPBasicCredentials = Depends(security)):

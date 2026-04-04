@@ -108,8 +108,9 @@ async def inscription_etape1(data: UserCreateStep1):
 @router.post("/etape2")
 async def inscription_etape2(data: UserCreateStep2):
     """
-    Étape 2: Sélection du service
-    L'utilisateur peut maintenant se connecter après cette étape
+    Étape 2: Sélection du service / poste
+    L'utilisateur peut maintenant se connecter après cette étape.
+    Supporte les postes provinciaux, d'établissement, et centraux.
     """
     from dependencies import get_db
 
@@ -120,28 +121,65 @@ async def inscription_etape2(data: UserCreateStep2):
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
     
-    # Vérifier que le service existe
-    service = await db.services.find_one({"id": data.service_id}, {"_id": 0})
-    if not service:
-        raise HTTPException(status_code=404, detail="Service non trouvé")
+    # Déterminer le rôle à partir du poste
+    poste_str = data.poste or ""
+    role_part = poste_str.split(" - ")[0].strip() if " - " in poste_str else poste_str.strip()
+    
+    # Mapping des rôles connus
+    ROLES_MAPPING = {
+        "proved": "proved",
+        "ipp": "ipp",
+        "diprocope": "diprocope",
+        "ministre_provincial": "ministre_provincial",
+        "chef_etablissement": "chef_etablissement",
+        "directeur_ecole": "directeur_ecole",
+        "conseiller_principal_education": "conseiller_principal_education",
+        "enseignant": "enseignant",
+        "personnel_administratif": "personnel_administratif",
+        "inspecteur_pedagogique": "inspecteur_pedagogique",
+        "agent_dinacope": "agent_dinacope",
+    }
+    
+    role = ROLES_MAPPING.get(role_part, "personnel_administratif")
+    
+    # Si un service est fourni (administration centrale), le traiter
+    service_nom = "Non affecté"
+    service_code = "NA"
+    
+    if data.service_id:
+        service = await db.services.find_one({"id": data.service_id}, {"_id": 0})
+        if service:
+            service_nom = service["nom"]
+            service_code = service["code"]
+    else:
+        # Pour les postes provinciaux/établissement, pas de service organigramme requis
+        if role in ["proved", "ipp", "diprocope", "ministre_provincial"]:
+            service_nom = f"Province - {poste_str}"
+            service_code = f"PROV-{role.upper()}"
+        elif role in ["chef_etablissement", "directeur_ecole", "conseiller_principal_education", "enseignant"]:
+            service_nom = f"Établissement - {role}"
+            service_code = f"ETAB-{role.upper()}"
     
     # Créer le profil de service
     service_profile = UserServiceProfile(
         user_id=data.user_id,
-        service_id=data.service_id,
-        service_nom=service["nom"],
-        service_code=service["code"],
+        service_id=data.service_id or f"auto-{role}",
+        service_nom=service_nom,
+        service_code=service_code,
         poste=data.poste,
-        est_responsable=False,  # Par défaut, sera modifié par l'admin si besoin
+        est_responsable=role in ["proved", "ipp", "diprocope", "ministre_provincial", "chef_etablissement", "directeur_ecole"],
         date_affectation=datetime.now(timezone.utc)
     )
     
-    # Mettre à jour l'utilisateur
+    # Mettre à jour l'utilisateur avec le rôle
     await db.users.update_one(
         {"id": data.user_id},
         {
             "$push": {"service_profiles": service_profile.model_dump()},
-            "$set": {"service_actif_id": data.service_id}
+            "$set": {
+                "service_actif_id": data.service_id or f"auto-{role}",
+                "role": role
+            }
         }
     )
     
@@ -151,8 +189,9 @@ async def inscription_etape2(data: UserCreateStep2):
     return {
         "message": "Inscription terminée ! Vous pouvez maintenant vous connecter.",
         "user_id": data.user_id,
-        "service_affecte": service["nom"],
+        "service_affecte": service_nom,
         "poste": data.poste,
+        "role": role,
         "connexion": {
             "telephone": user["telephone"],
             "mot_de_passe": "Utilisez le mot de passe que vous avez choisi"

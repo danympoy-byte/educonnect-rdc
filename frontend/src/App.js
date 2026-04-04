@@ -31,6 +31,7 @@ import {
   ListesDistribution
 } from '@/pages/Dashboard';
 import Evaluations from '@/pages/Dashboard/Evaluations';
+import PartageDonnees from '@/pages/Dashboard/PartageDonnees';
 import APIKeys from '@/pages/Dashboard/APIKeys';
 import '@/App.css';
 
@@ -132,6 +133,7 @@ function AppRoutes() {
         <Route path="entites-externes" element={<EntitesExternes />} />
         <Route path="listes-distribution" element={<ListesDistribution />} />
         <Route path="evaluations" element={<Evaluations />} />
+        <Route path="partage-donnees" element={<PartageDonnees />} />
         <Route path="profil" element={<Profil />} />
         <Route path="completion-profil" element={<CompletionProfil />} />
       </Route>

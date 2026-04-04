@@ -11,6 +11,10 @@ import uuid
 
 class UserRole(str, Enum):
     MINISTRE = "ministre"
+    MINISTRE_PROVINCIAL = "ministre_provincial"
+    PROVED = "proved"
+    IPP = "ipp"
+    DIPROCOPE = "diprocope"
     SECRETAIRE_GENERAL = "secretaire_general"
     DPE = "directeur_provincial"
     CHEF_SOUS_DIVISION = "chef_sous_division"
@@ -288,10 +292,10 @@ class UserCreateStep1(BaseModel):
 
 
 class UserCreateStep2(BaseModel):
-    """Étape 2: Sélection du service"""
+    """Étape 2: Sélection du service/poste"""
     user_id: str
-    service_id: str
-    poste: str  # Intitulé du poste dans le service
+    service_id: Optional[str] = None
+    poste: str  # Intitulé du poste / rôle
 
 
 class UserCreateStep3(BaseModel):

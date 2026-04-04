@@ -94,12 +94,24 @@ const InscriptionMultiEtapes = () => {
 
   const handleSubmitEtape2 = async (e) => {
     e.preventDefault();
-    if (!serviceSelectionne) { toast.error("Veuillez sélectionner un service dans l'organigramme"); return; }
-    const serviceFinalId = formEtape2.service_id || formEtape2.direction_id || formEtape2.dg_id;
-    if (!serviceFinalId) { toast.error('Veuillez sélectionner au moins une Direction Générale'); return; }
-    if (!formEtape2.poste) { toast.error('Veuillez indiquer votre poste'); return; }
+    
+    // For provincial/establishment roles, service organigramme is not required
+    const poste = formEtape2.poste || '';
+    const isProvinceOrEtabRole = ['proved', 'ipp', 'diprocope', 'ministre_provincial', 
+      'chef_etablissement', 'directeur_ecole', 'conseiller_principal_education', 'enseignant',
+      'personnel_administratif', 'inspecteur_pedagogique', 'agent_dinacope'].some(r => poste.startsWith(r));
+    
+    if (!isProvinceOrEtabRole) {
+      if (!serviceSelectionne) { toast.error("Veuillez sélectionner un service dans l'organigramme"); return; }
+      const serviceFinalId = formEtape2.service_id || formEtape2.direction_id || formEtape2.dg_id;
+      if (!serviceFinalId) { toast.error('Veuillez sélectionner au moins une Direction Générale'); return; }
+    }
+    
+    if (!poste) { toast.error('Veuillez indiquer votre poste'); return; }
+    
     try {
-      const response = await inscriptionService.etape2({ user_id: userId, service_id: serviceFinalId, poste: formEtape2.poste });
+      const serviceFinalId = formEtape2.service_id || formEtape2.direction_id || formEtape2.dg_id || null;
+      const response = await inscriptionService.etape2({ user_id: userId, service_id: serviceFinalId, poste: poste });
       toast.success(response.message);
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {

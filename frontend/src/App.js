@@ -30,6 +30,7 @@ import {
   EntitesExternes,
   ListesDistribution
 } from '@/pages/Dashboard';
+import Evaluations from '@/pages/Dashboard/Evaluations';
 import APIKeys from '@/pages/Dashboard/APIKeys';
 import '@/App.css';
 
@@ -130,6 +131,7 @@ function AppRoutes() {
         <Route path="plan-classement" element={<PlanClassement />} />
         <Route path="entites-externes" element={<EntitesExternes />} />
         <Route path="listes-distribution" element={<ListesDistribution />} />
+        <Route path="evaluations" element={<Evaluations />} />
         <Route path="profil" element={<Profil />} />
         <Route path="completion-profil" element={<CompletionProfil />} />
       </Route>

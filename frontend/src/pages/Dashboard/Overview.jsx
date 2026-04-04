@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useDashboardData } from '../../hooks/useDashboardData';
@@ -8,6 +8,19 @@ import StatsCharts from '../../components/dashboards/components/StatsCharts';
 
 const Overview = () => {
   const { stats, statsSexe, loading } = useDashboardData();
+  const [evolutionData, setEvolutionData] = useState(null);
+
+  useEffect(() => {
+    const fetchEvolution = async () => {
+      try {
+        const res = await api.get('/stats/evolution');
+        setEvolutionData(res.data);
+      } catch (err) {
+        console.error('Evolution stats error:', err);
+      }
+    };
+    fetchEvolution();
+  }, []);
 
   const handleExportStats = async () => {
     try {
@@ -15,7 +28,6 @@ const Overview = () => {
         responseType: 'blob'
       });
 
-      // Créer un lien de téléchargement
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -24,7 +36,7 @@ const Overview = () => {
       link.click();
       link.remove();
 
-      toast.success('Export Excel téléchargé avec succès !');
+      toast.success('Export Excel telecharge avec succes !');
     } catch (error) {
       toast.error('Erreur lors de l\'export');
     }
@@ -40,20 +52,19 @@ const Overview = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header avec bouton d'export */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Tableau de bord</h2>
         <button
           onClick={handleExportStats}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center space-x-2"
+          data-testid="export-stats-btn"
         >
-          <span>📊</span>
           <span>Exporter Excel</span>
         </button>
       </div>
 
       <StatsCards stats={stats} />
-      <StatsCharts stats={stats} statsSexe={statsSexe} />
+      <StatsCharts stats={stats} statsSexe={statsSexe} evolutionData={evolutionData} />
     </div>
   );
 };

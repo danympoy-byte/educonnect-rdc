@@ -976,6 +976,145 @@ async def get_stats_sexe(current_user: dict = Depends(get_current_user)):
     }
 
 
+@api_router.get("/stats/evolution")
+async def get_stats_evolution(current_user: dict = Depends(get_current_user)):
+    """Statistiques d'évolution temporelle sur 12 mois"""
+    from datetime import timedelta
+    
+    now = datetime.now(timezone.utc)
+    mois_labels = []
+    data_eleves = []
+    data_enseignants = []
+    data_etablissements = []
+    
+    for i in range(11, -1, -1):
+        # Premier jour du mois i mois en arrière
+        target = now - timedelta(days=i * 30)
+        mois_labels.append(target.strftime("%b %Y"))
+        
+        # Calculer la date limite (fin du mois)
+        date_limite = (now - timedelta(days=(i - 1) * 30)).isoformat() if i > 0 else now.isoformat()
+        
+        # Compter les entités créées jusqu'à cette date
+        count_eleves = await eleves_collection.count_documents(
+            {"created_at": {"$lte": date_limite}}
+        )
+        count_enseignants = await enseignants_collection.count_documents(
+            {"created_at": {"$lte": date_limite}}
+        )
+        count_etab = await etablissements_collection.count_documents(
+            {"created_at": {"$lte": date_limite}}
+        )
+        
+        data_eleves.append(count_eleves)
+        data_enseignants.append(count_enseignants)
+        data_etablissements.append(count_etab)
+    
+    # Aussi calculer les nouvelles inscriptions par mois
+    inscriptions_par_mois = []
+    for i in range(11, -1, -1):
+        debut_mois = (now - timedelta(days=(i + 1) * 30)).isoformat()
+        fin_mois = (now - timedelta(days=i * 30)).isoformat()
+        
+        nouveaux_eleves = await eleves_collection.count_documents(
+            {"created_at": {"$gte": debut_mois, "$lte": fin_mois}}
+        )
+        nouveaux_enseignants = await enseignants_collection.count_documents(
+            {"created_at": {"$gte": debut_mois, "$lte": fin_mois}}
+        )
+        
+        inscriptions_par_mois.append({
+            "mois": mois_labels[11 - i],
+            "eleves": nouveaux_eleves,
+            "enseignants": nouveaux_enseignants
+        })
+    
+    return {
+        "mois": mois_labels,
+        "cumul": {
+            "eleves": data_eleves,
+            "enseignants": data_enseignants,
+            "etablissements": data_etablissements
+        },
+        "inscriptions_mensuelles": inscriptions_par_mois
+    }
+
+
+@api_router.get("/stats/notes")
+async def get_stats_notes(current_user: dict = Depends(get_current_user)):
+    """Statistiques des notes et moyennes par matière"""
+    # Moyenne par matière
+    pipeline_matieres = [
+        {
+            "$group": {
+                "_id": "$matiere",
+                "moyenne": {"$avg": "$note"},
+                "count": {"$sum": 1},
+                "min": {"$min": "$note"},
+                "max": {"$max": "$note"}
+            }
+        },
+        {"$sort": {"_id": 1}}
+    ]
+    
+    matieres_stats = await notes_collection.aggregate(pipeline_matieres).to_list(50)
+    
+    # Distribution des notes
+    pipeline_distribution = [
+        {
+            "$bucket": {
+                "groupBy": "$note",
+                "boundaries": [0, 5, 8, 10, 12, 14, 16, 20.1],
+                "default": "autre",
+                "output": {"count": {"$sum": 1}}
+            }
+        }
+    ]
+    
+    try:
+        distribution = await notes_collection.aggregate(pipeline_distribution).to_list(20)
+    except Exception:
+        distribution = []
+    
+    # Moyenne par trimestre
+    pipeline_trimestre = [
+        {
+            "$group": {
+                "_id": "$trimestre",
+                "moyenne": {"$avg": "$note"},
+                "count": {"$sum": 1}
+            }
+        }
+    ]
+    
+    trimestres_stats = await notes_collection.aggregate(pipeline_trimestre).to_list(5)
+    
+    return {
+        "par_matiere": [
+            {
+                "matiere": str(s["_id"]),
+                "moyenne": round(s["moyenne"], 2),
+                "count": s["count"],
+                "min": s["min"],
+                "max": s["max"]
+            }
+            for s in matieres_stats
+        ],
+        "distribution": [
+            {"tranche": str(d["_id"]), "count": d["count"]}
+            for d in distribution if d["_id"] != "autre"
+        ],
+        "par_trimestre": [
+            {
+                "trimestre": str(t["_id"]).replace("trimestre_", "T"),
+                "moyenne": round(t["moyenne"], 2),
+                "count": t["count"]
+            }
+            for t in trimestres_stats
+        ]
+    }
+
+
 @api_router.get("/stats/province/{province_id}")
 async def get_province_stats(province_id: str, current_user: dict = Depends(get_current_user)):
     """Récupérer les statistiques d'une province"""

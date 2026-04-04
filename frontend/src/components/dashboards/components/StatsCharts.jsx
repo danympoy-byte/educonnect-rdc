@@ -1,9 +1,9 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 
 const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
-const StatsCharts = ({ stats, statsSexe }) => {
+const StatsCharts = ({ stats, statsSexe, evolutionData }) => {
   if (!stats) return null;
 
   // Préparer les données pour les graphiques
@@ -353,6 +353,68 @@ const StatsCharts = ({ stats, statsSexe }) => {
                 <Legend />
                 <Bar dataKey="Hommes" fill="#3B82F6" />
                 <Bar dataKey="Femmes" fill="#EC4899" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Graphiques d'évolution temporelle */}
+      {evolutionData && (
+        <div className="space-y-6 mt-8">
+          <h2 className="text-2xl font-bold text-gray-900">Evolution Temporelle</h2>
+          
+          {/* Courbe cumulative */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Evolution des effectifs (12 derniers mois)</h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <AreaChart data={
+                evolutionData.mois?.map((m, i) => ({
+                  mois: m.replace(' 20', '\n20'),
+                  Eleves: evolutionData.cumul?.eleves?.[i] || 0,
+                  Enseignants: (evolutionData.cumul?.enseignants?.[i] || 0) * 10,
+                  Etablissements: (evolutionData.cumul?.etablissements?.[i] || 0) * 5,
+                  _enseignants_reel: evolutionData.cumul?.enseignants?.[i] || 0,
+                  _etablissements_reel: evolutionData.cumul?.etablissements?.[i] || 0,
+                })) || []
+              } margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mois" tick={{ fontSize: 11 }} />
+                <YAxis label={{ value: 'Effectifs', angle: -90, position: 'insideLeft' }} />
+                <Tooltip 
+                  formatter={(value, name, props) => {
+                    if (name === 'Enseignants') return [props.payload._enseignants_reel, name];
+                    if (name === 'Etablissements') return [props.payload._etablissements_reel, name];
+                    return [value, name];
+                  }}
+                />
+                <Legend />
+                <Area type="monotone" dataKey="Eleves" stackId="1" stroke="#4F46E5" fill="#4F46E5" fillOpacity={0.3} />
+                <Area type="monotone" dataKey="Enseignants" stackId="2" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
+                <Area type="monotone" dataKey="Etablissements" stackId="3" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.3} />
+              </AreaChart>
+            </ResponsiveContainer>
+            <p className="text-xs text-gray-400 mt-2 text-center">* Enseignants et etablissements mis a l'echelle pour la lisibilite</p>
+          </div>
+
+          {/* Nouvelles inscriptions par mois */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Nouvelles inscriptions mensuelles</h3>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={
+                evolutionData.inscriptions_mensuelles?.map(item => ({
+                  mois: item.mois?.replace(' 20', '\n20'),
+                  Eleves: item.eleves,
+                  Enseignants: item.enseignants
+                })) || []
+              } margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mois" tick={{ fontSize: 11 }} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="Eleves" fill="#4F46E5" />
+                <Bar dataKey="Enseignants" fill="#10B981" />
               </BarChart>
             </ResponsiveContainer>
           </div>

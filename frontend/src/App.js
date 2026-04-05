@@ -150,6 +150,8 @@ function AppRoutes() {
   );
 }
 
+import OfflineBanner from '@/components/ui/OfflineBanner';
+
 function App() {
   return (
     <BrowserRouter>
@@ -179,6 +181,7 @@ function App() {
               },
             }}
           />
+          <OfflineBanner />
           <AppRoutes />
         </div>
       </AuthProvider>

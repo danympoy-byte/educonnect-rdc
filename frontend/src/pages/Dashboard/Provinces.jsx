@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDashboardData } from '../../hooks/useDashboardData';
-import ProvinceNavigator from '../../components/dashboards/components/ProvinceNavigator';
+import CarteRDC from '../../components/dashboards/components/CarteRDC';
 import { 
   INTRO_TEXT, 
   COMITE_PROVINCIAL, 
@@ -24,6 +24,7 @@ const Provinces = () => {
   const [selectedAdminProvince, setSelectedAdminProvince] = useState(null);
   const [selectedEduProvince, setSelectedEduProvince] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('carte'); // 'carte' ou 'liste'
 
   const handleSelectAdmin = (province) => {
     setSelectedAdminProvince(province);
@@ -96,27 +97,63 @@ const Provinces = () => {
             </div>
           </div>
 
-          {/* Barre de recherche */}
-          <div className="relative" data-testid="search-provinces">
-            <input
-              type="text"
-              placeholder="Rechercher une province administrative ou educationnelle..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-              data-testid="search-input"
-            />
-            <svg className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+          {/* Carte interactive + Toggle */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-gray-900">
+              Les 26 Provinces Administratives
+            </h2>
+            <div className="flex gap-1 bg-gray-100 rounded-lg p-1" data-testid="view-toggle">
+              <button
+                onClick={() => setViewMode('carte')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${viewMode === 'carte' ? 'bg-white shadow text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}
+                data-testid="btn-view-carte"
+              >
+                <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                Carte
+              </button>
+              <button
+                onClick={() => setViewMode('liste')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${viewMode === 'liste' ? 'bg-white shadow text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}
+                data-testid="btn-view-liste"
+              >
+                <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                Grille
+              </button>
+            </div>
           </div>
 
-          {/* Grille des provinces administratives */}
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
-              {searchTerm ? `Resultats (${filteredProvinces.length})` : `Les 26 Provinces Administratives`}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" data-testid="provinces-grid">
+          {/* Vue Carte */}
+          {viewMode === 'carte' && (
+            <CarteRDC
+              provincesData={PROVINCES_EDUCATIONNELLES}
+              onSelectProvince={handleSelectAdmin}
+            />
+          )}
+
+          {/* Vue Grille */}
+          {viewMode === 'liste' && (
+            <>
+              {/* Barre de recherche */}
+              <div className="relative" data-testid="search-provinces">
+                <input
+                  type="text"
+                  placeholder="Rechercher une province administrative ou educationnelle..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                  data-testid="search-input"
+                />
+                <svg className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              {/* Grille des provinces administratives */}
+              <div>
+                {searchTerm && (
+                  <p className="text-sm text-gray-500 mb-3">{filteredProvinces.length} resultat(s)</p>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" data-testid="provinces-grid">
               {filteredProvinces.map((province, idx) => {
                 const totalSD = province.provincesEdu.reduce((a, pe) => a + pe.sousDivisions.length, 0);
                 return (
@@ -150,6 +187,8 @@ const Provinces = () => {
               })}
             </div>
           </div>
+            </>
+          )}
         </div>
       )}
 

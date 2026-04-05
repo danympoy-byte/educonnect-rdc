@@ -1,0 +1,15 @@
+{
+  "short_name": "Edu-Connect",
+  "name": "Edu-Connect - Plateforme Educative RDC",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4F46E5",
+  "background_color": "#f9fafb",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}

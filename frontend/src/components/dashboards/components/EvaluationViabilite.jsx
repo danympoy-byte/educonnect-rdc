@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import dinacopeService from '../../../services/dinacope.service';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = '';
 
 const EvaluationViabilite = ({ user }) => {
   const [evaluations, setEvaluations] = useState([]);

@@ -7,7 +7,7 @@ const PreviewModal = ({ document, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = process.env.REACT_APP_BACKEND_URL;
+  const API_URL = '';
     useEffect(() => {
     loadPreview();
   }, []);

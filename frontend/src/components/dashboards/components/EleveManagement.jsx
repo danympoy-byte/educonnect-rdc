@@ -18,7 +18,7 @@ const EleveManagement = ({
     e.preventDefault();
     try {
       // D'abord créer l'utilisateur
-      const userResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/register`, {
+      const userResponse = await fetch(`${''}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'},

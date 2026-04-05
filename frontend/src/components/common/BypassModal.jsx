@@ -7,7 +7,7 @@ const BypassModal = ({ document, onClose, onSuccess }) => {
   const [motif, setMotif] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = process.env.REACT_APP_BACKEND_URL;
+  const API_URL = '';
     const handleBypass = async () => {
     if (!etapeSelectionnee || !motif.trim()) {
       toast.error('Veuillez sélectionner une étape et fournir un motif');

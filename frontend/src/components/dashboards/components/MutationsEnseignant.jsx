@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import sirhService from '../../../services/sirh.service';
 import enseignantsService from '../../../services/enseignants.service';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = '';
 
 const MutationsEnseignant = ({ user }) => {
   const [mutations, setMutations] = useState([]);

@@ -10,7 +10,7 @@ const TransmissionExterneModal = ({ document, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [entites, setEntites] = useState([]);
 
-  const API_URL = process.env.REACT_APP_BACKEND_URL;
+  const API_URL = '';
     useEffect(() => {
     loadEntites();
   }, []);

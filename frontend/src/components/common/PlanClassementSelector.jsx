@@ -10,7 +10,7 @@ const PlanClassementSelector = ({ selectedId, onSelect, onClear }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedNode, setSelectedNode] = useState(null);
 
-  const API_URL = process.env.REACT_APP_BACKEND_URL;
+  const API_URL = '';
     useEffect(() => {
     if (showDropdown && arborescence.length === 0) {
       loadArborescence();

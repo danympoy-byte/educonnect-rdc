@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = '';
 
 const RapportsTrimestriels = ({ user }) => {
   const [rapports, setRapports] = useState([]);

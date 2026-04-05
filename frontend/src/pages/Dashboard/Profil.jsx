@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { Eye, EyeOff } from 'lucide-react';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = '';
 
 const ProfilPage = () => {
   const { user, updateUserProfile } = useAuth();

@@ -19,7 +19,7 @@ const ListesDistribution = () => {
     const loadListes = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/listes`, {
+      const response = await fetch(`/api/listes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -38,7 +38,7 @@ const ListesDistribution = () => {
 
   const loadUsers = useCallback(async () => {
     try {
-      const response = await fetch(`/users`, {
+      const response = await fetch(`/api/users`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -107,7 +107,7 @@ const ListesDistribution = () => {
     }
 
     try {
-      const response = await fetch(`/listes/${id}`, {
+      const response = await fetch(`/api/listes/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -21,7 +21,7 @@ const EntitesExternes = () => {
     const loadEntites = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/entites-externes`, {
+      const response = await fetch(`/api/entites-externes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -92,7 +92,7 @@ const EntitesExternes = () => {
     }
 
     try {
-      const response = await fetch(`/entites-externes/${id}`, {
+      const response = await fetch(`/api/entites-externes/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

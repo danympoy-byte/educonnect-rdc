@@ -155,7 +155,7 @@ const DocumentManagement = ({ user }) => {
     if (!ocrSearchQuery.trim()) { toast.error('Veuillez saisir un terme de recherche'); return; }
     setOcrLoading(true);
     try {
-      const response = await fetch(`${''}/api/recherche/texte-integral?query=${encodeURIComponent(ocrSearchQuery)}`, { headers: {} });
+      const response = await fetch(`/api/recherche/texte-integral?query=${encodeURIComponent(ocrSearchQuery)}`);
       if (response.ok) {
         const data = await response.json();
         setOcrResults(data);

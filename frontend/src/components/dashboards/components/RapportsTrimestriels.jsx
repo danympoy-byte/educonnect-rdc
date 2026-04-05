@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const API_URL = '';
-
 const RapportsTrimestriels = ({ user }) => {
   const [rapports, setRapports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,8 +15,8 @@ const RapportsTrimestriels = ({ user }) => {
 
   const loadRapports = async () => {
     try {
-            const response = await fetch(`${API_URL}/api/rapports/`, {
-        
+      const response = await fetch('/api/rapports/', {
+        credentials: 'include'
       });
       
       if (response.ok) {
@@ -37,9 +35,9 @@ const RapportsTrimestriels = ({ user }) => {
   const genererRapportManuel = async (trimestre, annee) => {
     setGenerating(true);
     try {
-            const response = await fetch(`${API_URL}/api/rapports/generer?trimestre=${trimestre}&annee=${annee}`, {
+      const response = await fetch(`/api/rapports/generer?trimestre=${trimestre}&annee=${annee}`, {
         method: 'POST',
-        
+        credentials: 'include'
       });
       
       if (response.ok) {
@@ -58,8 +56,8 @@ const RapportsTrimestriels = ({ user }) => {
 
   const consulterRapport = async (rapportId) => {
     try {
-            const response = await fetch(`${API_URL}/api/rapports/${rapportId}`, {
-        
+      const response = await fetch(`/api/rapports/${rapportId}`, {
+        credentials: 'include'
       });
       
       if (response.ok) {

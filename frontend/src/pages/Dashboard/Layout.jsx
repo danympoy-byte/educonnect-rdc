@@ -43,7 +43,7 @@ const UserMenu = ({ user, onLogout }) => {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
-                <span>Completer mon profil</span>
+                <span>Compléter mon profil</span>
               </button>
             </div>
             <div className="border-t border-gray-200">
@@ -52,7 +52,7 @@ const UserMenu = ({ user, onLogout }) => {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
                 </svg>
-                <span>Deconnexion</span>
+                <span>Déconnexion</span>
               </button>
             </div>
           </div>
@@ -95,12 +95,6 @@ const getNavItems = (role) => {
         'secretaire_general', 'directeur_provincial', 'chef_sous_division', 'inspecteur_pedagogique', 'agent_dinacope', 'personnel_administratif']
     },
     {
-      path: '/dashboard/rapports',
-      label: 'Rapports',
-      roles: [...acces_ministre, ...acces_ipp, ...acces_diprocope,
-        'secretaire_general', 'directeur_provincial', 'inspecteur_pedagogique', 'agent_dinacope']
-    },
-    {
       path: '/dashboard/provinces',
       label: 'Provinces',
       roles: [...acces_ministre, ...acces_ipp, ...acces_diprocope, ...acces_etablissement, ...acces_enseignant,
@@ -114,19 +108,19 @@ const getNavItems = (role) => {
     },
     {
       path: '/dashboard/eleves',
-      label: 'Eleves',
+      label: 'Élèves',
       roles: [...acces_ministre, ...acces_ipp, ...acces_diprocope, ...acces_etablissement, ...acces_enseignant,
         'secretaire_general', 'directeur_provincial', 'chef_sous_division', 'inspecteur_pedagogique', 'agent_dinacope', 'personnel_administratif']
     },
     {
       path: '/dashboard/etablissements',
-      label: 'Etablissements',
+      label: 'Établissements',
       roles: [...acces_ministre, ...acces_ipp, ...acces_diprocope, ...acces_etablissement, ...acces_enseignant,
         'secretaire_general', 'directeur_provincial', 'chef_sous_division', 'inspecteur_pedagogique', 'agent_dinacope', 'personnel_administratif']
     },
     {
       path: '/dashboard/viabilite',
-      label: 'Viabilite',
+      label: 'Viabilité',
       roles: [...acces_ministre, ...acces_ipp, ...acces_diprocope,
         'secretaire_general', 'directeur_provincial', 'inspecteur_pedagogique', 'agent_dinacope']
     },
@@ -138,7 +132,7 @@ const getNavItems = (role) => {
     },
     {
       path: '/dashboard/presences',
-      label: 'Presences',
+      label: 'Présences',
       roles: [...acces_ministre, ...acces_ipp, ...acces_diprocope, ...acces_etablissement, ...acces_enseignant,
         'secretaire_general', 'directeur_provincial', 'chef_sous_division']
     },
@@ -156,12 +150,12 @@ const getNavItems = (role) => {
     },
     {
       path: '/dashboard/partage-donnees',
-      label: 'Partage de Donnees',
+      label: 'Partage de Données',
       roles: [...acces_ministre, 'secretaire_general']
     },
     {
       path: '/dashboard/dinacope',
-      label: 'Controle DINACOPE',
+      label: 'Contrôle DINACOPE',
       roles: ['agent_dinacope', 'administrateur_technique']
     },
     {
@@ -205,9 +199,9 @@ const DashboardLayout = () => {
                 />
               </Link>
               <div className="min-w-0">
-                <h1 className="text-lg sm:text-2xl font-bold text-black">Edu-Connect</h1>
-                <p className="text-xs sm:text-sm text-gray-700 mt-0.5 hidden sm:block">Plateforme Educative Nationale</p>
-                <p className="text-xs sm:text-sm text-gray-700 hidden md:block">Ministere de l'Education Nationale et de la Nouvelle Citoyennete</p>
+                <h1 className="text-lg sm:text-2xl font-bold text-black">Édu-Connect</h1>
+                <p className="text-xs sm:text-sm text-gray-700 mt-0.5 hidden sm:block">Plateforme Éducative Nationale</p>
+                <p className="text-xs sm:text-sm text-gray-700 hidden md:block">Ministère de l'Éducation Nationale et de la Nouvelle Citoyenneté</p>
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">

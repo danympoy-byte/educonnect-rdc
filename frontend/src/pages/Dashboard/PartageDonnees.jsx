@@ -4,17 +4,17 @@ import APIKeys from './APIKeys';
 
 const SOURCES_DEFINITION = {
   "Notes": { description: "Notes scolaires envoyées par les systèmes de gestion", types: ["Notes", "Coefficients", "Trimestres"] },
-  "Evaluations": { description: "Resultats d'evaluations depuis les outils de tests en ligne", types: ["Notes d'evaluations", "Commentaires", "Statistiques"] },
-  "Presences": { description: "Donnees de presence depuis les applications de gestion scolaire", types: ["Presences", "Absences", "Justifications"] },
-  "Effectifs": { description: "Mises a jour des effectifs depuis les systemes de gestion", types: ["Effectifs eleves", "Effectifs enseignants", "Classes"] },
-  "Inscriptions": { description: "Inscriptions d'eleves depuis les systemes partenaires", types: ["Inscriptions", "Donnees eleves"] },
-  "Affectations": { description: "Affectations d'enseignants depuis les systemes RH", types: ["Affectations", "Mutations"] }
+  "Evaluations": { description: "Résultats d'évaluations depuis les outils de tests en ligne", types: ["Notes d'évaluations", "Commentaires", "Statistiques"] },
+  "Presences": { description: "Données de présence depuis les applications de gestion scolaire", types: ["Présences", "Absences", "Justifications"] },
+  "Effectifs": { description: "Mises à jour des effectifs depuis les systèmes de gestion", types: ["Effectifs élèves", "Effectifs enseignants", "Classes"] },
+  "Inscriptions": { description: "Inscriptions d'élèves depuis les systèmes partenaires", types: ["Inscriptions", "Données élèves"] },
+  "Affectations": { description: "Affectations d'enseignants depuis les systèmes RH", types: ["Affectations", "Mutations"] }
 };
 
 const ENDPOINTS_DOC = [
   {
     method: "POST", path: "/api/externe/presences",
-    description: "Recevoir les donnees de presence depuis les applications de gestion scolaire",
+    description: "Recevoir les données de présence depuis les applications de gestion scolaire",
     permission: "presences",
     body: `[
   {
@@ -31,7 +31,7 @@ const ENDPOINTS_DOC = [
   },
   {
     method: "POST", path: "/api/externe/evaluations",
-    description: "Recevoir les resultats d'evaluations depuis les outils de tests en ligne",
+    description: "Recevoir les résultats d'évaluations depuis les outils de tests en ligne",
     permission: "notes",
     body: `{
   "etablissement_id": "string",
@@ -48,7 +48,7 @@ const ENDPOINTS_DOC = [
   },
   {
     method: "POST", path: "/api/externe/effectifs",
-    description: "Mise a jour des effectifs depuis les systemes de gestion",
+    description: "Mise à jour des effectifs depuis les systèmes de gestion",
     permission: "inscriptions",
     body: `[
   {
@@ -109,10 +109,10 @@ const PartageDonnees = () => {
   };
 
   const tabs = [
-    { key: 'sources', label: 'Sources de Donnees' },
+    { key: 'sources', label: 'Sources de Données' },
     { key: 'endpoints', label: 'Endpoints d\'Ingestion' },
-    { key: 'logs', label: 'Journal d\'Activite' },
-    { key: 'cles', label: 'Cles API' },
+    { key: 'logs', label: 'Journal d\'Activité' },
+    { key: 'cles', label: 'Clés API' },
   ];
 
   const getStatutBadge = (statut) => {
@@ -131,9 +131,9 @@ const PartageDonnees = () => {
   return (
     <div className="space-y-6" data-testid="partage-donnees-page">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Partage de Donnees</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Partage de Données</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Gerez les sources de donnees externes, les cles API et les endpoints d'ingestion pour les applications partenaires.
+          Gérez les sources de données externes, les clés API et les endpoints d'ingestion pour les applications partenaires.
         </p>
       </div>
 
@@ -144,10 +144,10 @@ const PartageDonnees = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <h3 className="text-sm font-semibold text-blue-800">Comment ca fonctionne</h3>
+            <h3 className="text-sm font-semibold text-blue-800">Comment ça fonctionne</h3>
             <p className="text-sm text-blue-700 mt-1">
-              Les applications de gestion scolaire et de tests digitaux autorisees envoient des donnees a Edu-Connect via les endpoints d'ingestion (Basic Auth).
-              Les donnees recues alimentent automatiquement les graphiques et tableaux de bord de la plateforme.
+              Les applications de gestion scolaire et de tests digitaux autorisées envoient des données à Édu-Connect via les endpoints d'ingestion (Basic Auth).
+              Les données reçues alimentent automatiquement les graphiques et tableaux de bord de la plateforme.
             </p>
           </div>
         </div>
@@ -165,7 +165,7 @@ const PartageDonnees = () => {
             <p className="text-3xl font-bold mt-1">{sourcesStatus.stats_globales.total_appels_api}</p>
           </div>
           <div className="bg-gradient-to-br from-amber-600 to-amber-700 rounded-xl p-5 text-white" data-testid="stat-presences">
-            <p className="text-amber-200 text-sm font-medium">Presences Enregistrees</p>
+            <p className="text-amber-200 text-sm font-medium">Présences Enregistrées</p>
             <p className="text-3xl font-bold mt-1">{sourcesStatus.stats_globales.total_presences_enregistrees}</p>
           </div>
         </div>
@@ -236,12 +236,12 @@ const PartageDonnees = () => {
 
               {/* Légende */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Legende des statuts</h4>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Légende des statuts</h4>
                 <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500" /><span className="text-xs text-gray-600"><strong>Actif</strong> - Dernier appel reussi</span></div>
-                  <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500" /><span className="text-xs text-gray-600"><strong>Partiel</strong> - Succes avec erreurs partielles</span></div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500" /><span className="text-xs text-gray-600"><strong>Actif</strong> - Dernier appel réussi</span></div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500" /><span className="text-xs text-gray-600"><strong>Partiel</strong> - Succès avec erreurs partielles</span></div>
                   <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500" /><span className="text-xs text-gray-600"><strong>Erreur</strong> - Dernier appel en erreur</span></div>
-                  <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-gray-400" /><span className="text-xs text-gray-600"><strong>En attente</strong> - Aucun appel recu</span></div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-gray-400" /><span className="text-xs text-gray-600"><strong>En attente</strong> - Aucun appel reçu</span></div>
                 </div>
               </div>
             </>
@@ -253,9 +253,9 @@ const PartageDonnees = () => {
       {activeTab === 'endpoints' && (
         <div className="space-y-4" data-testid="endpoints-section">
           <p className="text-sm text-gray-600">
-            Ces endpoints permettent aux applications partenaires autorisees d'envoyer des donnees a Edu-Connect.
-            Chaque requete utilise <strong>Basic Auth</strong> (username + password du client API).
-            Les formats supportes sont <strong>JSON</strong>, <strong>XML</strong> et <strong>CSV</strong>.
+            Ces endpoints permettent aux applications partenaires autorisées d'envoyer des données à Édu-Connect.
+            Chaque requête utilise <strong>Basic Auth</strong> (username + password du client API).
+            Les formats supportés sont <strong>JSON</strong>, <strong>XML</strong> et <strong>CSV</strong>.
           </p>
 
           {ENDPOINTS_DOC.map((ep, idx) => (
@@ -292,7 +292,7 @@ const PartageDonnees = () => {
       {activeTab === 'logs' && (
         <div className="space-y-4" data-testid="logs-section">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">Derniers appels API des systemes externes</p>
+            <p className="text-sm text-gray-600">Derniers appels API des systèmes externes</p>
             <button onClick={fetchData} className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm hover:bg-indigo-200 transition" data-testid="btn-refresh-logs">
               Actualiser
             </button>
@@ -300,7 +300,7 @@ const PartageDonnees = () => {
 
           {logs.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-              <p className="text-gray-500">Aucun appel API enregistre pour le moment.</p>
+              <p className="text-gray-500">Aucun appel API enregistré pour le moment.</p>
             </div>
           ) : (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

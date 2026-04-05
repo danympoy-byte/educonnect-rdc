@@ -5,6 +5,7 @@ Fiche agent détaillée, Contrôle DINACOPE, Mutations multi-niveaux
 from fastapi import APIRouter, HTTPException, Depends, Query, Body
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
+from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from uuid import uuid4
 
@@ -14,8 +15,14 @@ from models import (
     VerificationDINACOPE, DonneesDINACOPE, DemandeMutation, DetectionFraude
 )
 from auth import get_current_user
-# from email_service import email_verification_dinacope, email_notification_mutation
-# Email service désactivé temporairement - fonctions manquantes dans le nouveau email_service.py
+
+# MongoDB connection
+mongo_url = os.environ['MONGO_URL']
+_client = AsyncIOMotorClient(mongo_url)
+_db = _client[os.environ.get('DB_NAME', 'educonnect_rdc')]
+
+def get_db():
+    return _db
 
 router = APIRouter(prefix="/api/sirh", tags=["SIRH"])
 

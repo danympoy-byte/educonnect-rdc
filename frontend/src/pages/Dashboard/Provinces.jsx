@@ -79,7 +79,7 @@ const Provinces = () => {
             {/* Comité provincial */}
             <div className="mt-5">
               <h3 className="text-base font-semibold text-gray-800 mb-3">
-                Comite provincial de l'EDU-NC
+                Comité provincial de l'EDU-NC
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {COMITE_PROVINCIAL.map((membre) => (
@@ -137,7 +137,7 @@ const Provinces = () => {
               <div className="relative" data-testid="search-provinces">
                 <input
                   type="text"
-                  placeholder="Rechercher une province administrative ou educationnelle..."
+                  placeholder="Rechercher une province administrative ou éducationnelle..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
@@ -211,7 +211,7 @@ const Provinces = () => {
                 {selectedAdminProvince.provinceAdmin}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
-                {selectedAdminProvince.provincesEdu.length} province(s) educationnelle(s)
+                {selectedAdminProvince.provincesEdu.length} province(s) éducationnelle(s)
               </p>
             </div>
           </div>

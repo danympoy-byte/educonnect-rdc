@@ -57,7 +57,7 @@ const CarteRDC = ({ provincesData, onSelectProvince }) => {
         <svg
           viewBox="0 0 1000 994"
           className="w-full h-auto"
-          style={{ maxHeight: '600px' }}
+          style={{ maxHeight: '660px' }}
           data-testid="carte-rdc-svg"
         >
           {Object.entries(PROVINCES_PATHS).map(([name, path]) => {

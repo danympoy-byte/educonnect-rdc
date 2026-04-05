@@ -20,7 +20,7 @@ const ListesDistribution = () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/listes`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -34,12 +34,12 @@ const ListesDistribution = () => {
     } finally {
       setLoading(false);
     }
-  }, [API_URL, token]);
+  }, []);
 
   const loadUsers = useCallback(async () => {
     try {
-      const response = await fetch(`/api/users`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const response = await fetch('/api/users', {
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -47,8 +47,9 @@ const ListesDistribution = () => {
         setUsers(data);
       }
     } catch (error) {
+      console.error('Failed to load users:', error);
     }
-  }, [API_URL, token]);
+  }, []);
 
   // Charger les listes et utilisateurs au montage
   useEffect(() => {
@@ -109,7 +110,7 @@ const ListesDistribution = () => {
     try {
       const response = await fetch(`/api/listes/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (response.ok) {

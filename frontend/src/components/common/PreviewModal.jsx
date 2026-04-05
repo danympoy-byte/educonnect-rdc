@@ -17,8 +17,8 @@ const PreviewModal = ({ document, onClose }) => {
     setError(null);
     
     try {
-      const response = await fetch(`${API_URL}/api/preview/document/${document.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const response = await fetch(`/api/preview/document/${document.id}`, {
+        credentials: 'include'
       });
 
       if (response.ok) {

@@ -358,30 +358,27 @@ const DashboardPaie = ({ user }) => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {secopeData.provincesStats.map((prov, index) => (
+                    {secopeData.provincesStats.map((prov, index) => {
+                      const getTauxColor = (t) => { if (t >= 92) return 'text-green-600'; if (t >= 89) return 'text-yellow-600'; return 'text-red-600'; };
+                      const getTauxBadge = (t) => { if (t >= 92) return 'bg-green-100 text-green-800'; if (t >= 89) return 'bg-yellow-100 text-yellow-800'; return 'bg-red-100 text-red-800'; };
+                      const getTauxLabel = (t) => { if (t >= 92) return 'Excellent'; if (t >= 89) return 'Bon'; return 'À améliorer'; };
+                      return (
                       <tr key={prov.province} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">{prov.province}</td>
                         <td className="px-4 py-3 text-sm text-right text-gray-600">{formatNumber(prov.effectif)}</td>
                         <td className="px-4 py-3 text-sm text-right text-gray-600">{formatNumber(prov.payes)}</td>
                         <td className="px-4 py-3 text-sm text-right">
-                          <span className={`font-medium ${
-                            prov.taux >= 92 ? 'text-green-600' :
-                            prov.taux >= 89 ? 'text-yellow-600' : 'text-red-600'
-                          }`}>
-                            {prov.taux}%
-                          </span>
+                          <span className={`font-medium ${getTauxColor(prov.taux)}`}>{prov.taux}%</span>
                         </td>
                         <td className="px-4 py-3 text-sm text-right text-gray-600">{formatMontant(prov.masse)}</td>
                         <td className="px-4 py-3 text-center">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            prov.taux >= 92 ? 'bg-green-100 text-green-800' :
-                            prov.taux >= 89 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {prov.taux >= 92 ? 'Excellent' : prov.taux >= 89 ? 'Bon' : 'À améliorer'}
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTauxBadge(prov.taux)}`}>
+                            {getTauxLabel(prov.taux)}
                           </span>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                   <tfoot className="bg-gray-100">
                     <tr>

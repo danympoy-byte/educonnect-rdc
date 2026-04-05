@@ -191,7 +191,7 @@ const EtapeService = ({
               >
                 <option value="">-- Selectionnez une province --</option>
                 {provincesOptions.map((p, i) => (
-                  <option key={i} value={p.admin}>{p.admin}</option>
+                  <option key={p.admin} value={p.admin}>{p.admin}</option>
                 ))}
               </select>
             </div>
@@ -208,7 +208,7 @@ const EtapeService = ({
               >
                 <option value="">-- Selectionnez une province educationnelle --</option>
                 {getProvincesEdu().map((pe, i) => (
-                  <option key={i} value={pe.nom}>{pe.nom} (Chef-lieu: {pe.chefLieu})</option>
+                  <option key={pe.nom} value={pe.nom}>{pe.nom} (Chef-lieu: {pe.chefLieu})</option>
                 ))}
               </select>
             </div>

@@ -38,7 +38,7 @@ class TestAuthAndSetup:
             })
         
         assert login_response.status_code == 200, f"Login failed: {login_response.text}"
-        print(f"✅ Login successful")
+        print("✅ Login successful")
         return session
     
     def test_health_check(self):

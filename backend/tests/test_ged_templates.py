@@ -105,7 +105,7 @@ class TestGEDTemplates:
         doc = data["document"]
         
         # Verify template fields
-        assert doc["is_template"] == True, "Document should be marked as template"
+        assert doc["is_template"] is True, "Document should be marked as template"
         assert doc["template_name"] == "TEST_Circulaire_Type"
         assert doc["template_description"] == "Modèle de circulaire pour tests automatisés"
         assert doc["type_document"] == "administratif"
@@ -127,7 +127,7 @@ class TestGEDTemplates:
         assert len(test_templates) > 0, "Test template not found in list"
         
         template = test_templates[0]
-        assert template["is_template"] == True
+        assert template["is_template"] is True
         assert template["type_document"] == "administratif"
         
         print(f"✓ Template found in list: {template['template_name']}")
@@ -187,7 +187,7 @@ class TestGEDTemplates:
         doc = data["document"]
         
         # Verify document is NOT a template
-        assert doc["is_template"] == False, "Document should not be a template"
+        assert doc["is_template"] is False, "Document should not be a template"
         
         # Verify title was provided (not from template)
         assert doc["titre"] == "TEST_Document_From_Template"

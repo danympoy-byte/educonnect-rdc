@@ -347,7 +347,7 @@ const Provinces = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {selectedEduProvince.sousDivisions.map((sd, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
+                    <tr key={`${sd.nom}-${sd.lieu}`} className="hover:bg-gray-50">
                       <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-400 font-medium">{idx + 1}</td>
                       <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{sd.nom}</td>
                       <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-600">{sd.lieu}</td>

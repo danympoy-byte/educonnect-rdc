@@ -75,11 +75,11 @@ const DocumentManagement = ({ user }) => {
   };
 
   const loadUsers = async () => {
-    try { setUsers(await usersService.getAll()); } catch { /* silenced */ }
+    try { setUsers(await usersService.getAll()); } catch (e) { console.error('Load users:', e); }
   };
 
   const loadTemplates = async () => {
-    try { setTemplates(await documentsService.getTemplates()); } catch { /* silenced */ }
+    try { setTemplates(await documentsService.getTemplates()); } catch (e) { console.error('Load templates:', e); }
   };
 
   const handleTemplateSelect = (templateId) => {

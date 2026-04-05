@@ -21,8 +21,8 @@ const EntitesExternes = () => {
     const loadEntites = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/entites-externes`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const response = await fetch('/api/entites-externes', {
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -36,7 +36,7 @@ const EntitesExternes = () => {
     } finally {
       setLoading(false);
     }
-  }, [API_URL, token]);
+  }, []);
 
   useEffect(() => {
     loadEntites();
@@ -94,7 +94,7 @@ const EntitesExternes = () => {
     try {
       const response = await fetch(`/api/entites-externes/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (response.ok) {

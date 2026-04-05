@@ -9,9 +9,9 @@ import os
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
-# Test credentials
-TEST_EMAIL = "admin@educonnect.cd"
-TEST_PASSWORD = "Admin@EduConnect2026!"
+# Test credentials - loaded from environment
+TEST_EMAIL = os.getenv("TEST_ADMIN_EMAIL", "admin@educonnect.cd")
+TEST_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD", "Admin@EduConnect2026!")
 
 
 @pytest.fixture(scope="module")
@@ -55,7 +55,7 @@ class TestStatsEvolution:
         """Test that evolution endpoint returns 200"""
         response = requests.get(f"{BASE_URL}/api/stats/evolution", headers=auth_headers)
         assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
-        print(f"✓ Evolution endpoint returned 200")
+        print("✓ Evolution endpoint returned 200")
     
     def test_evolution_has_mois_array(self, auth_headers):
         """Test that response contains 'mois' array with 12 months"""
@@ -116,7 +116,7 @@ class TestStatsNotes:
         """Test that notes stats endpoint returns 200"""
         response = requests.get(f"{BASE_URL}/api/stats/notes", headers=auth_headers)
         assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
-        print(f"✓ Notes stats endpoint returned 200")
+        print("✓ Notes stats endpoint returned 200")
     
     def test_notes_has_par_matiere(self, auth_headers):
         """Test that response contains 'par_matiere' with subject averages"""
@@ -193,7 +193,7 @@ class TestStatsNotes:
         for item in data.get("par_trimestre", []):
             assert 0 <= item["moyenne"] <= 20, f"Invalid trimestre moyenne: {item['moyenne']}"
         
-        print(f"✓ All averages are in valid range (0-20)")
+        print("✓ All averages are in valid range (0-20)")
 
 
 class TestStatsNotesDataQuality:

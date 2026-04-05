@@ -17,6 +17,7 @@ const DocumentStats = () => {
       const data = await documentsService.getStats();
       setStats(data);
     } catch (error) {
+      console.error('Failed to load document stats:', error);
     } finally {
       setLoading(false);
     }

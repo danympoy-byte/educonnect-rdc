@@ -14,10 +14,10 @@ import time
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
-# Test credentials from test_credentials.md
-MINISTER_PHONE = "+243 820 000 010"
-MINISTER_PASSWORD = "Ministre2026!"
-DEMO_PASSWORD = "Demo2026!"
+# Test credentials - loaded from environment
+MINISTER_PHONE = os.getenv("TEST_MINISTER_PHONE", "+243 820 000 010")
+MINISTER_PASSWORD = os.getenv("TEST_MINISTER_PASSWORD", "Ministre2026!")
+DEMO_PASSWORD = os.getenv("TEST_DEMO_PASSWORD", "Demo2026!")
 
 
 class TestHealthCheck:
@@ -173,9 +173,9 @@ class TestDemoUserLogin:
         assert "access_token" in data
         assert "user" in data
         assert data["user"]["nom"] == "Test01"
-        assert data["user"]["is_ephemeral"] == True
+        assert data["user"]["is_ephemeral"] is True
         
-        print(f"✅ Demo user Test01 login successful")
+        print("✅ Demo user Test01 login successful")
         return data
     
     def test_demo_user_status_after_login(self, setup_demo_users):

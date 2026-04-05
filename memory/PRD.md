@@ -26,23 +26,34 @@ Plateforme de gestion éducative pour la République Démocratique du Congo (RDC
 
 ### Session 2 (refactoring + données)
 - [x] Refactoring server.py: extraction routes stats → routes_stats.py
-- [x] Peuplement réaliste des 26 provinces (953 établissements, 126 804 élèves, 4 114 enseignants, 3.3M+ notes)
+- [x] Peuplement réaliste des 26 provinces
 
 ### Session 3 (corrections URL + accents + comptes éphémères) - 05/04/2026
-- [x] Fix URL API: toutes les URLs frontend utilisent des chemins relatifs (/api) — corrige le problème de déploiement sur edu-connect-rdc.net
-- [x] Fix CORS: configuration compatible avec credentials
-- [x] Fix accents français partout: Édu-Connect, Élèves, Établissements, Viabilité, Présences, Partage de Données, Déconnexion
-- [x] Déplacement onglet Rapports: de la navigation principale vers la page Documents (sous-onglet)
-- [x] Fix erreur chargement Rapports: ajout credentials aux appels fetch
-- [x] Fix carte RDC: SVG avec vrais contours des 26 provinces (400KB → 29KB)
-- [x] Comptes éphémères Test01-Test10 (rôle ministre, 24h)
+- [x] Fix URL API: chemins relatifs (/api)
+- [x] Fix CORS
+- [x] Fix accents français (Édu-Connect, Élèves, etc.)
+- [x] Déplacement onglet Rapports → sous-onglet Documents
+- [x] Fix erreur chargement Rapports
+- [x] Carte RDC fidèle (400KB → 29KB)
+- [x] Comptes éphémères Test01-Test10
 
 ### Session 4 (corrections #2) - 05/04/2026
-- [x] Fix page Mutations: get_db() manquant dans routes_sirh.py → erreur 500 corrigée
-- [x] Fix texte Partage de Données: tous les accents français corrigés (Données, Gérez, Présences, Enregistrées, Légende, etc.)
-- [x] Fix carte 0 P.E.: alignement prop (statsData → provincesData) et noms de provinces entre CarteRDC et PROVINCES_EDUCATIONNELLES
-- [x] Fix préfixes /api manquants: EntitesExternes.jsx, ListesDistribution.jsx
-- [x] Fix accents Provinces.jsx: éducationnelle, Comité provincial
+- [x] Fix page Mutations: get_db() manquant dans routes_sirh.py
+- [x] Fix texte Partage de Données: accents corrigés
+- [x] Fix carte 0 P.E.: alignement prop/noms
+- [x] Fix préfixes /api manquants
+
+### Session 5 (code quality review) - 05/04/2026
+- [x] #1 Secrets hardcodés → os.getenv() dans 4 fichiers de tests
+- [x] #2 Hook dependencies: NotificationProfilIncomplet.jsx useCallback
+- [x] #3 `is` comparisons → faux positifs (tous `is None`, correct)
+- [x] #5 Array index keys → remplacés par des identifiants uniques (8 fichiers)
+- [x] #6 Empty catch blocks → ajout console.error (6 fichiers)
+- [x] #7 Undefined `token` → remplacé par credentials:'include' (6 fichiers)
+- [x] #8 Nested ternaries → refactorisés en helper functions (Evaluations, DashboardPaie, RapportsTrimestriels)
+- [x] Undefined email functions → commentées dans routes_sirh.py
+- [x] Python lint: All checks passed
+- [x] Unused API_URL variables nettoyées
 
 ## Backlog
 
@@ -53,9 +64,6 @@ Plateforme de gestion éducative pour la République Démocratique du Congo (RDC
 ### P2 - Priorité moyenne
 - [ ] Connexion API SECOPE réelle (quand disponible)
 - [ ] Notifications push hors ligne
-
-### Refactoring
-- [ ] Nettoyage des variables API_URL='' inutilisées dans les composants
 
 ## Données en base
 - 26 provinces administratives, 60 provinces éducationnelles, 567 sous-divisions

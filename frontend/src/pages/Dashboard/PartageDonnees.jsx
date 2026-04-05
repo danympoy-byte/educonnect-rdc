@@ -200,7 +200,7 @@ const PartageDonnees = () => {
                 {(sourcesStatus?.sources || []).map((source, idx) => {
                   const def = SOURCES_DEFINITION[source.nom] || {};
                   return (
-                    <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition" data-testid={`source-${source.nom.toLowerCase()}`}>
+                    <div key={source.nom} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition" data-testid={`source-${source.nom.toLowerCase()}`}>
                       <div className="flex justify-between items-start mb-3">
                         <h3 className="text-base font-semibold text-gray-900">{source.nom}</h3>
                         {getStatutBadge(source.dernier_statut)}
@@ -221,7 +221,7 @@ const PartageDonnees = () => {
                       {def.types && (
                         <div className="flex flex-wrap gap-1">
                           {def.types.map((t, i) => (
-                            <span key={i} className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">{t}</span>
+                            <span key={t} className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">{t}</span>
                           ))}
                         </div>
                       )}
@@ -258,8 +258,8 @@ const PartageDonnees = () => {
             Les formats supportés sont <strong>JSON</strong>, <strong>XML</strong> et <strong>CSV</strong>.
           </p>
 
-          {ENDPOINTS_DOC.map((ep, idx) => (
-            <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {ENDPOINTS_DOC.map((ep) => (
+            <div key={ep.path} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center gap-3 flex-wrap">
                 <span className="px-2.5 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-700">{ep.method}</span>
                 <code className="text-sm font-mono text-gray-800">{ep.path}</code>
@@ -317,8 +317,8 @@ const PartageDonnees = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {logs.map((log, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
+                    {logs.map((log) => (
+                      <tr key={`${log.timestamp}-${log.endpoint}`} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm text-gray-600">{new Date(log.timestamp).toLocaleString('fr-FR')}</td>
                         <td className="px-4 py-3"><code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">{log.endpoint}</code></td>
                         <td className="px-4 py-3 text-sm text-gray-600 uppercase">{log.format_donnees || '-'}</td>

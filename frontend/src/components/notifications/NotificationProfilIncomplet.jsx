@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import inscriptionService from '../../services/inscription.service';
@@ -9,13 +9,7 @@ const NotificationProfilIncomplet = () => {
   const [notification, setNotification] = useState(null);
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    if (user?.id) {
-      loadNotification();
-    }
-  }, [user]);
-
-  const loadNotification = async () => {
+  const loadNotification = useCallback(async () => {
     try {
       const data = await inscriptionService.getNotificationProfil(user.id);
       if (data.afficher_notification) {
@@ -23,8 +17,15 @@ const NotificationProfilIncomplet = () => {
         setShow(true);
       }
     } catch (error) {
+      console.error('Failed to load profile notification:', error);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadNotification();
+    }
+  }, [user?.id, loadNotification]);
 
   const handleClose = () => {
     setShow(false);
@@ -54,8 +55,8 @@ const NotificationProfilIncomplet = () => {
             <div className="mt-2 text-sm text-yellow-700">
               <p>{notification.message}</p>
               <ul className="list-disc list-inside mt-2 space-y-1">
-                {notification.elements_manquants.map((element, index) => (
-                  <li key={index} className="capitalize">{element}</li>
+                {notification.elements_manquants.map((element) => (
+                  <li key={element} className="capitalize">{element}</li>
                 ))}
               </ul>
             </div>

@@ -12,11 +12,11 @@ import uuid
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
-# Test credentials
-ADMIN_EMAIL = "admin@educonnect.cd"
-ADMIN_PASSWORD = "Admin@EduConnect2026!"
-API_CLIENT_USERNAME = "gestion_scolaire_test"
-API_CLIENT_PASSWORD = "TestApiKey2026!"
+# Test credentials - loaded from environment
+ADMIN_EMAIL = os.getenv("TEST_ADMIN_EMAIL", "admin@educonnect.cd")
+ADMIN_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD", "Admin@EduConnect2026!")
+API_CLIENT_USERNAME = os.getenv("TEST_API_CLIENT_USERNAME", "gestion_scolaire_test")
+API_CLIENT_PASSWORD = os.getenv("TEST_API_CLIENT_PASSWORD", "TestApiKey2026!")
 REAL_ETABLISSEMENT_ID = "cbba70b6-c421-4686-a619-91964953e52d"
 
 
@@ -104,7 +104,7 @@ class TestPresencesEndpoint:
         data = response.json()
         
         # Validate response structure
-        assert data.get("success") == True, "Response should have success=True"
+        assert data.get("success") is True, "Response should have success=True"
         assert "nb_presences_inserees" in data, "Response should have nb_presences_inserees"
         assert data["nb_presences_inserees"] == 2, f"Expected 2 presences inserted, got {data['nb_presences_inserees']}"
         assert "message" in data, "Response should have message"
@@ -166,7 +166,7 @@ class TestEvaluationsEndpoint:
         assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
         data = response.json()
         
-        assert data.get("success") == True
+        assert data.get("success") is True
         assert "nb_notes_inserees" in data
         assert data["nb_notes_inserees"] == 2, f"Expected 2 notes inserted, got {data['nb_notes_inserees']}"
         
@@ -229,7 +229,7 @@ class TestEffectifsEndpoint:
         assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
         data = response.json()
         
-        assert data.get("success") == True
+        assert data.get("success") is True
         assert "nb_etablissements_traites" in data
         assert data["nb_etablissements_traites"] == 1
         
@@ -280,7 +280,7 @@ class TestEffectifsEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["nb_erreurs"] > 0, "Should report error for missing etablissement_id"
-        print(f"✓ Effectifs endpoint reports error for missing etablissement_id")
+        print("✓ Effectifs endpoint reports error for missing etablissement_id")
 
 
 class TestSourcesStatusEndpoint:
@@ -335,7 +335,7 @@ class TestSourcesStatusEndpoint:
             assert "nb_enregistrements_total" in source
             assert "dernier_statut" in source
         
-        print(f"✓ GET /api/externe/sources/status returns all 6 endpoints with call counts")
+        print("✓ GET /api/externe/sources/status returns all 6 endpoints with call counts")
         print(f"  - Active API clients: {data['nb_clients_api_actifs']}")
         print(f"  - Total API calls: {data['stats_globales']['total_appels_api']}")
     
@@ -408,7 +408,7 @@ class TestLogsEndpoint:
         for log in data["logs"]:
             assert log["endpoint"] == "/api/externe/presences", f"Expected presences endpoint, got {log['endpoint']}"
         
-        print(f"✓ Logs endpoint filters by endpoint correctly")
+        print("✓ Logs endpoint filters by endpoint correctly")
 
 
 class TestLoggingToCollection:
@@ -473,8 +473,8 @@ class TestLoggingToCollection:
         )
         after_count = after_response.json()["total"]
         
-        assert after_count > before_count, f"Log count should increase"
-        print(f"✓ POST /api/externe/evaluations creates log entry")
+        assert after_count > before_count, "Log count should increase"
+        print("✓ POST /api/externe/evaluations creates log entry")
     
     def test_effectifs_creates_log_entry(self, auth_token):
         """POST /api/externe/effectifs should create log entry"""
@@ -496,8 +496,8 @@ class TestLoggingToCollection:
         )
         after_count = after_response.json()["total"]
         
-        assert after_count > before_count, f"Log count should increase"
-        print(f"✓ POST /api/externe/effectifs creates log entry")
+        assert after_count > before_count, "Log count should increase"
+        print("✓ POST /api/externe/effectifs creates log entry")
 
 
 if __name__ == "__main__":

@@ -16,14 +16,15 @@ const DelegationModal = ({ document, onClose, onSuccess }) => {
 
   const loadUsers = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/users`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const response = await fetch('/api/users', {
+        credentials: 'include'
       });
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
       }
     } catch (error) {
+      console.error('Failed to load users:', error);
     }
   };
 

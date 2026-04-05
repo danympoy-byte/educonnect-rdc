@@ -85,7 +85,7 @@ class TestAuthentication:
         assert response.status_code == 200, f"Login failed: {response.text}"
         data = response.json()
         assert "access_token" in data
-        print(f"✅ Ministre login successful")
+        print("✅ Ministre login successful")
         return data["access_token"]
     
     def test_login_sg(self, session):
@@ -97,7 +97,7 @@ class TestAuthentication:
         assert response.status_code == 200, f"Login failed: {response.text}"
         data = response.json()
         assert "access_token" in data
-        print(f"✅ SG login successful")
+        print("✅ SG login successful")
         return data["access_token"]
     
     def test_login_dg_admin(self, session):
@@ -109,7 +109,7 @@ class TestAuthentication:
         assert response.status_code == 200, f"Login failed: {response.text}"
         data = response.json()
         assert "access_token" in data
-        print(f"✅ DG Admin login successful")
+        print("✅ DG Admin login successful")
         return data["access_token"]
 
 
@@ -181,7 +181,7 @@ class TestP0TypesTaches:
         assert response.status_code == 200, f"Transmission failed: {response.text}"
         data = response.json()
         assert "message" in data
-        print(f"✅ P0.1 - Transmission avec type_tache=info réussie")
+        print("✅ P0.1 - Transmission avec type_tache=info réussie")
     
     def test_transmettre_avec_type_tache_class(self, sg_token, test_document, sg_user_id):
         """Test transmission with type_tache=class (classement requis)"""
@@ -210,7 +210,7 @@ class TestP0TypesTaches:
             }
         )
         assert response.status_code == 200, f"Transmission failed: {response.text}"
-        print(f"✅ P0.1 - Transmission avec type_tache=class réussie")
+        print("✅ P0.1 - Transmission avec type_tache=class réussie")
     
     def test_historique_contient_type_tache(self, auth_token, test_document):
         """Verify historique contains type_tache"""
@@ -288,9 +288,9 @@ class TestP0Verrouillage:
         )
         assert response.status_code == 200, f"Lock failed: {response.text}"
         data = response.json()
-        assert data["est_verrouille"] == True
+        assert data["est_verrouille"] is True
         assert "date_verrouillage" in data
-        print(f"✅ P0.2 - Document verrouillé avec succès")
+        print("✅ P0.2 - Document verrouillé avec succès")
     
     def test_verrouiller_deja_verrouille_meme_user(self, auth_token, test_document):
         """Test locking already locked document by same user"""
@@ -301,8 +301,8 @@ class TestP0Verrouillage:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "déjà verrouillé par vous" in data["message"].lower() or data["est_verrouille"] == True
-        print(f"✅ P0.2 - Verrouillage par même utilisateur géré correctement")
+        assert "déjà verrouillé par vous" in data["message"].lower() or data["est_verrouille"] is True
+        print("✅ P0.2 - Verrouillage par même utilisateur géré correctement")
     
     def test_verrouiller_par_autre_user_echoue(self, sg_token, test_document):
         """Test that another user cannot lock an already locked document"""
@@ -313,7 +313,7 @@ class TestP0Verrouillage:
         )
         # Should return 423 Locked
         assert response.status_code == 423, f"Expected 423, got {response.status_code}: {response.text}"
-        print(f"✅ P0.2 - Verrouillage par autre utilisateur bloqué (423)")
+        print("✅ P0.2 - Verrouillage par autre utilisateur bloqué (423)")
     
     def test_deverrouiller_document(self, auth_token, test_document):
         """Test unlocking a document"""
@@ -324,8 +324,8 @@ class TestP0Verrouillage:
         )
         assert response.status_code == 200, f"Unlock failed: {response.text}"
         data = response.json()
-        assert data["est_verrouille"] == False
-        print(f"✅ P0.2 - Document déverrouillé avec succès")
+        assert data["est_verrouille"] is False
+        print("✅ P0.2 - Document déverrouillé avec succès")
 
 
 class TestP0Bypass:
@@ -398,7 +398,7 @@ class TestP0Bypass:
             params={"justification": "court"}  # Too short
         )
         assert response.status_code == 400, f"Expected 400, got {response.status_code}"
-        print(f"✅ P0.3 - Bypass sans justification suffisante rejeté")
+        print("✅ P0.3 - Bypass sans justification suffisante rejeté")
     
     def test_bypass_par_non_hierarchique_echoue(self, dg_token, test_document_with_circuit):
         """Test bypass by non-hierarchical user fails"""
@@ -411,7 +411,7 @@ class TestP0Bypass:
         # DG Admin is not in the authorized roles list (ministre, secretaire_general, directeur_provincial)
         # This should fail with 403
         assert response.status_code == 403, f"Expected 403, got {response.status_code}: {response.text}"
-        print(f"✅ P0.3 - Bypass par utilisateur non-hiérarchique rejeté")
+        print("✅ P0.3 - Bypass par utilisateur non-hiérarchique rejeté")
     
     def test_bypass_par_ministre_reussit(self, ministre_token, test_document_with_circuit):
         """Test bypass by Ministre succeeds"""
@@ -491,7 +491,7 @@ class TestP1Delegation:
             }
         )
         assert response.status_code == 400, f"Expected 400, got {response.status_code}"
-        print(f"✅ P1.1 - Auto-délégation rejetée correctement")
+        print("✅ P1.1 - Auto-délégation rejetée correctement")
     
     def test_delegation_reussie(self, ministre_token, test_document, sg_user_id):
         """Test successful delegation"""
@@ -571,8 +571,8 @@ class TestP1LiaisonDossiers:
         )
         assert response.status_code == 200, f"Link failed: {response.text}"
         data = response.json()
-        assert data["liaison_bidirectionnelle"] == True
-        print(f"✅ P1.2 - Documents liés avec succès (bidirectionnel)")
+        assert data["liaison_bidirectionnelle"] is True
+        print("✅ P1.2 - Documents liés avec succès (bidirectionnel)")
     
     def test_liaison_deja_existante(self, ministre_token, test_documents):
         """Test linking already linked documents"""
@@ -585,7 +585,7 @@ class TestP1LiaisonDossiers:
         assert response.status_code == 200
         data = response.json()
         assert "déjà liés" in data["message"].lower()
-        print(f"✅ P1.2 - Liaison déjà existante détectée")
+        print("✅ P1.2 - Liaison déjà existante détectée")
     
     def test_delier_documents(self, ministre_token, test_documents):
         """Test unlinking documents"""
@@ -595,7 +595,7 @@ class TestP1LiaisonDossiers:
             headers={"Authorization": f"Bearer {ministre_token}"}
         )
         assert response.status_code == 200, f"Unlink failed: {response.text}"
-        print(f"✅ P1.2 - Documents déliés avec succès")
+        print("✅ P1.2 - Documents déliés avec succès")
 
 
 class TestP1TransmissionExterne:
@@ -647,7 +647,7 @@ class TestP1TransmissionExterne:
             }
         )
         assert response.status_code == 400, f"Expected 400, got {response.status_code}"
-        print(f"✅ P1.3 - Transmission externe sans fichier rejetée")
+        print("✅ P1.3 - Transmission externe sans fichier rejetée")
     
     def test_transmission_externe_email_invalide(self, ministre_token, sg_user_id):
         """Test external transmission with invalid email fails"""
@@ -673,7 +673,7 @@ class TestP1TransmissionExterne:
             }
         )
         assert response.status_code == 400, f"Expected 400, got {response.status_code}"
-        print(f"✅ P1.3 - Email invalide rejeté")
+        print("✅ P1.3 - Email invalide rejeté")
 
 
 class TestP1ListesDistribution:
@@ -755,7 +755,7 @@ class TestP1ListesDistribution:
             }
         )
         assert response.status_code == 200
-        print(f"✅ P1.4 - Liste modifiée avec succès")
+        print("✅ P1.4 - Liste modifiée avec succès")
     
     def test_supprimer_liste(self, ministre_token, test_liste):
         """Test deleting a list"""
@@ -764,7 +764,7 @@ class TestP1ListesDistribution:
             headers={"Authorization": f"Bearer {ministre_token}"}
         )
         assert response.status_code == 200
-        print(f"✅ P1.4 - Liste supprimée avec succès")
+        print("✅ P1.4 - Liste supprimée avec succès")
 
 
 class TestP1PlanClassement:
@@ -795,7 +795,7 @@ class TestP1PlanClassement:
         # May return 400 if already initialized
         if response.status_code == 400:
             assert "déjà initialisé" in response.json()["detail"].lower()
-            print(f"✅ P1.5 - Plan de classement déjà initialisé")
+            print("✅ P1.5 - Plan de classement déjà initialisé")
         else:
             assert response.status_code == 200
             data = response.json()
@@ -835,7 +835,7 @@ class TestP1PlanClassement:
             }
         )
         assert response.status_code == 403
-        print(f"✅ P1.5 - Création par non-admin rejetée")
+        print("✅ P1.5 - Création par non-admin rejetée")
 
 
 # ============================================
@@ -874,7 +874,7 @@ class TestP2EntitesExternes:
     def test_creer_entite_externe(self, test_entite):
         """Test creating an external entity"""
         assert test_entite["type_entite"] == "entreprise"
-        assert test_entite["est_partenaire"] == True
+        assert test_entite["est_partenaire"] is True
         print(f"✅ P2.1 - Entité externe créée: {test_entite['nom']}")
     
     def test_lister_entites_externes(self, ministre_token):
@@ -899,7 +899,7 @@ class TestP2EntitesExternes:
         data = response.json()
         for entite in data["entites"]:
             assert entite["type_entite"] == "entreprise"
-        print(f"✅ P2.1 - Filtrage par type fonctionne")
+        print("✅ P2.1 - Filtrage par type fonctionne")
     
     def test_filtrer_entites_partenaires(self, ministre_token):
         """Test filtering partner entities"""
@@ -911,8 +911,8 @@ class TestP2EntitesExternes:
         assert response.status_code == 200
         data = response.json()
         for entite in data["entites"]:
-            assert entite["est_partenaire"] == True
-        print(f"✅ P2.1 - Filtrage partenaires fonctionne")
+            assert entite["est_partenaire"] is True
+        print("✅ P2.1 - Filtrage partenaires fonctionne")
     
     def test_statistiques_partenaires(self, ministre_token):
         """Test partner statistics"""
@@ -970,7 +970,7 @@ class TestP2Preview:
             headers={"Authorization": f"Bearer {ministre_token}"}
         )
         assert response.status_code == 404
-        print(f"✅ P2.2 - Preview sans fichier retourne 404")
+        print("✅ P2.2 - Preview sans fichier retourne 404")
     
     def test_preview_info_document(self, ministre_token, sg_user_id):
         """Test getting preview info for document"""
@@ -1029,7 +1029,7 @@ class TestP2RechercheContenu:
             params={"q": "ab"}  # Less than 3 characters
         )
         assert response.status_code == 422  # Validation error
-        print(f"✅ P2.3 - Requête trop courte rejetée (min 3 caractères)")
+        print("✅ P2.3 - Requête trop courte rejetée (min 3 caractères)")
     
     def test_statistiques_indexation(self, ministre_token):
         """Test indexation statistics"""
@@ -1078,7 +1078,7 @@ class TestP2DoubleZone:
         assert response.status_code == 200
         data = response.json()
         assert data["contexte_actuel"] == "equipe"
-        print(f"✅ P2.4 - Basculé vers Zone Verte (équipe)")
+        print("✅ P2.4 - Basculé vers Zone Verte (équipe)")
     
     def test_basculer_vers_personnel(self, ministre_token):
         """Test switching to personal context"""
@@ -1090,7 +1090,7 @@ class TestP2DoubleZone:
         assert response.status_code == 200
         data = response.json()
         assert data["contexte_actuel"] == "personnel"
-        print(f"✅ P2.4 - Basculé vers Zone Bleue (personnel)")
+        print("✅ P2.4 - Basculé vers Zone Bleue (personnel)")
     
     def test_basculer_contexte_invalide(self, ministre_token):
         """Test switching to invalid context"""
@@ -1100,7 +1100,7 @@ class TestP2DoubleZone:
             params={"nouveau_contexte": "invalide"}
         )
         assert response.status_code == 400
-        print(f"✅ P2.4 - Contexte invalide rejeté")
+        print("✅ P2.4 - Contexte invalide rejeté")
     
     def test_documents_par_contexte(self, ministre_token):
         """Test listing documents by context"""
@@ -1154,7 +1154,7 @@ class TestCleanup:
             documents = response.json()
             test_docs = [d for d in documents if d.get("titre", "").startswith("TEST_")]
             print(f"ℹ️ Found {len(test_docs)} test documents (cleanup not implemented)")
-        print(f"✅ Cleanup check completed")
+        print("✅ Cleanup check completed")
 
 
 if __name__ == "__main__":

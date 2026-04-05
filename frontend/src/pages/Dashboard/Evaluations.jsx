@@ -174,7 +174,7 @@ const Evaluations = () => {
                 <Tooltip />
                 <Bar dataKey="count" name="Nombre de notes" radius={[4, 4, 0, 0]}>
                   {distributionData.map((entry, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${entry.range || index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -219,29 +219,37 @@ const Evaluations = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {matieresData.map((m, idx) => {
-                    const appreciation = m.moyenne >= 16 ? 'Excellent' :
-                      m.moyenne >= 14 ? 'Tres Bien' :
-                      m.moyenne >= 12 ? 'Bien' :
-                      m.moyenne >= 10 ? 'Assez Bien' :
-                      m.moyenne >= 8 ? 'Passable' : 'Insuffisant';
-                    const color = m.moyenne >= 14 ? 'text-emerald-600' :
-                      m.moyenne >= 10 ? 'text-blue-600' :
-                      m.moyenne >= 8 ? 'text-amber-600' : 'text-red-600';
+                  {matieresData.map((m) => {
+                    const getAppreciation = (note) => {
+                      if (note >= 16) return 'Excellent';
+                      if (note >= 14) return 'Très Bien';
+                      if (note >= 12) return 'Bien';
+                      if (note >= 10) return 'Assez Bien';
+                      if (note >= 8) return 'Passable';
+                      return 'Insuffisant';
+                    };
+                    const getNoteColor = (note) => {
+                      if (note >= 14) return 'text-emerald-600';
+                      if (note >= 10) return 'text-blue-600';
+                      if (note >= 8) return 'text-amber-600';
+                      return 'text-red-600';
+                    };
+                    const getBadgeStyle = (note) => {
+                      if (note >= 14) return 'bg-emerald-100 text-emerald-700';
+                      if (note >= 10) return 'bg-blue-100 text-blue-700';
+                      if (note >= 8) return 'bg-amber-100 text-amber-700';
+                      return 'bg-red-100 text-red-700';
+                    };
                     return (
-                      <tr key={idx} className="hover:bg-gray-50">
+                      <tr key={m.matiere} className="hover:bg-gray-50">
                         <td className="px-6 py-3 text-sm font-medium text-gray-900">{m.matiere}</td>
-                        <td className={`px-6 py-3 text-sm font-bold ${color}`}>{m.moyenne}/20</td>
+                        <td className={`px-6 py-3 text-sm font-bold ${getNoteColor(m.moyenne)}`}>{m.moyenne}/20</td>
                         <td className="px-6 py-3 text-sm text-gray-600">{m.min}/20</td>
                         <td className="px-6 py-3 text-sm text-gray-600">{m.max}/20</td>
                         <td className="px-6 py-3 text-sm text-gray-600">{m.count.toLocaleString()}</td>
                         <td className="px-6 py-3">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            m.moyenne >= 14 ? 'bg-emerald-100 text-emerald-700' :
-                            m.moyenne >= 10 ? 'bg-blue-100 text-blue-700' :
-                            m.moyenne >= 8 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-                          }`}>
-                            {appreciation}
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBadgeStyle(m.moyenne)}`}>
+                            {getAppreciation(m.moyenne)}
                           </span>
                         </td>
                       </tr>
@@ -273,7 +281,7 @@ const Evaluations = () => {
                   dataKey="count"
                 >
                   {distributionData.map((entry, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${entry.range || index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -287,14 +295,14 @@ const Evaluations = () => {
 
           {/* Barres de distribution */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200" data-testid="distribution-bars">
-            <h3 className="text-base font-semibold text-gray-900 mb-4">Distribution detaillee</h3>
+            <h3 className="text-base font-semibold text-gray-900 mb-4">Distribution détaillée</h3>
             <div className="space-y-3">
-              {distributionData.map((d, idx) => {
+              {distributionData.map((d) => {
                 const maxCount = Math.max(...distributionData.map(x => x.count));
                 const pct = maxCount > 0 ? (d.count / maxCount) * 100 : 0;
                 const totalPct = totalNotes > 0 ? ((d.count / totalNotes) * 100).toFixed(1) : 0;
                 return (
-                  <div key={idx}>
+                  <div key={d.range}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm font-medium text-gray-700">{d.label}/20</span>
                       <span className="text-sm text-gray-500">{d.count.toLocaleString()} ({totalPct}%)</span>

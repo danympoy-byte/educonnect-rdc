@@ -256,17 +256,19 @@ const RapportsTrimestriels = ({ user }) => {
                 <div className="mb-6">
                   <h4 className="text-xl font-semibold text-gray-900 mb-4">🏆 Top Créateurs</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {selectedRapport.top_createurs.slice(0, 10).map((user, index) => (
+                    {selectedRapport.top_createurs.slice(0, 10).map((user, index) => {
+                      const rankLabels = ['1.', '2.', '3.'];
+                      const rank = index < 3 ? rankLabels[index] : `${index + 1}.`;
+                      return (
                       <div key={user.user_id} className="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg">
-                        <span className={`text-2xl ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📄'}`}>
-                          {index < 3 ? (index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉') : `${index + 1}.`}
-                        </span>
+                        <span className="text-2xl font-bold text-indigo-600">{rank}</span>
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">{user.nom}</p>
                           <p className="text-sm text-gray-500">{user.documents_crees} documents</p>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

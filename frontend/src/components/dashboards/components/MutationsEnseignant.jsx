@@ -3,8 +3,6 @@ import toast from 'react-hot-toast';
 import sirhService from '../../../services/sirh.service';
 import enseignantsService from '../../../services/enseignants.service';
 
-const API_URL = '';
-
 const MutationsEnseignant = ({ user }) => {
   const [mutations, setMutations] = useState([]);
   const [enseignants, setEnseignants] = useState([]);
@@ -33,7 +31,7 @@ const MutationsEnseignant = ({ user }) => {
             const [mutData, ensData, etabData] = await Promise.all([
         sirhService.getMutations(),
         enseignantsService.getAll(),
-        fetch(`${API_URL}/api/etablissements`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+        fetch('/api/etablissements', { credentials: 'include' }).then(r => r.json())
       ]);
       setMutations(mutData.mutations || []);
       setEnseignants(ensData || []);

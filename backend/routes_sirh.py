@@ -246,13 +246,14 @@ async def envoyer_lien_verification(
     
     await db.verifications_dinacope.insert_one(verification.model_dump())
     
-    # Envoyer l'email
-    email_sent = email_verification_dinacope(
-        destinataire_email=user.get("email"),
-        destinataire_nom=f"{user.get('prenom')} {user.get('nom')}",
-        lien_verification=lien,
-        date_expiration=date_expiration
-    )
+    # Envoyer l'email (désactivé temporairement)
+    email_sent = False
+    # email_sent = email_verification_dinacope(
+    #     destinataire_email=user.get("email"),
+    #     destinataire_nom=f"{user.get('prenom')} {user.get('nom')}",
+    #     lien_verification=lien,
+    #     date_expiration=date_expiration
+    # )
     
     return {
         "message": "Lien de vérification envoyé avec succès",
@@ -798,17 +799,7 @@ async def valider_mutation(
     
     # Notifier le prochain validateur ou l'enseignant si approuvée
     if nouveau_statut == StatutMutation.APPROUVEE.value:
-        # Notifier l'enseignant
-        enseignant = await db.enseignants.find_one({"id": mutation["enseignant_id"]}, {"_id": 0})
-        user_enseignant = await db.users.find_one({"id": enseignant["user_id"]}, {"_id": 0})
-        
-        email_notification_mutation(
-            destinataire_email=user_enseignant.get("email"),
-            destinataire_nom=f"{user_enseignant.get('prenom')} {user_enseignant.get('nom')}",
-            numero_reference=mutation["numero_reference"],
-            type_mutation=mutation["type_mutation"],
-            statut="approuvee"
-        )
+        # Notifier l'enseignant (désactivé temporairement - email service non configuré)
         
         await db.demandes_mutations.update_one(
             {"id": mutation_id},
@@ -878,18 +869,7 @@ async def rejeter_mutation(
         }
     )
     
-    # Notifier l'enseignant
-    enseignant = await db.enseignants.find_one({"id": mutation["enseignant_id"]}, {"_id": 0})
-    user_enseignant = await db.users.find_one({"id": enseignant["user_id"]}, {"_id": 0})
-    
-    email_notification_mutation(
-        destinataire_email=user_enseignant.get("email"),
-        destinataire_nom=f"{user_enseignant.get('prenom')} {user_enseignant.get('nom')}",
-        numero_reference=mutation["numero_reference"],
-        type_mutation=mutation["type_mutation"],
-        statut="rejetee",
-        raison_rejet=raison
-    )
+    # Notifier l'enseignant (désactivé temporairement - email service non configuré)
     
     return {"message": "Mutation rejetée"}
 

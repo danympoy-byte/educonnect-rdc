@@ -17,14 +17,15 @@ const TransmissionExterneModal = ({ document, onClose, onSuccess }) => {
 
   const loadEntites = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/entites-externes`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const response = await fetch('/api/entites-externes', {
+        credentials: 'include'
       });
       if (response.ok) {
         const data = await response.json();
         setEntites(data);
       }
     } catch (error) {
+      console.error('Failed to load entites:', error);
     }
   };
 

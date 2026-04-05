@@ -166,9 +166,9 @@ const PlanClassement = () => {
                         Types acceptés
                       </label>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {selectedNode.types_documents_acceptes.map((type, idx) => (
+                        {selectedNode.types_documents_acceptes.map((type) => (
                           <span
-                            key={idx}
+                            key={type}
                             className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
                           >
                             {type}

@@ -1,71 +1,65 @@
-# Édu-Connect - Plateforme Éducative Nationale RDC
+# Édu-Connect - PRD (Product Requirements Document)
 
-## Original Problem Statement
-Plateforme de gestion éducative pour la RDC intégrant données SECOPE/DINACOPE, gestion documentaire, messagerie, analytics, endpoints d'ingestion, carte interactive et mode hors ligne.
+## Énoncé du problème
+Plateforme de gestion éducative pour la République Démocratique du Congo (RDC), permettant la gestion des établissements, enseignants, élèves, notes, documents et communications à l'échelle nationale.
 
 ## Architecture
-- **Frontend**: React 18 + Tailwind CSS + Recharts + SVG Map
-- **Backend**: FastAPI + Motor (MongoDB async)
-- **Database**: MongoDB (db: educonnect_rdc)
-- **Auth**: JWT (utilisateurs) + Basic Auth (clients API)
-- **Offline**: Service Worker + Cache API
+- **Frontend**: React SPA + Tailwind CSS + Recharts + SVG interactif (CarteRDC)
+- **Backend**: FastAPI REST API, routes modulaires (routes_stats.py, routes_chat.py, routes_rapports.py, etc.)
+- **Base de données**: MongoDB (educonnect_rdc)
+- **Auth**: JWT + cookies httpOnly
+- **PWA**: Service Worker pour mode hors ligne
 
-## What's Been Implemented
+## Ce qui a été implémenté
 
-### Data Seeding (complet)
-- 953 établissements répartis sur **26/26 provinces**
-- 4 114 enseignants
-- 126 804 élèves (88 968 primaire, 37 836 secondaire)
-- 3 276 classes
-- 3 319 185 notes (16 matières, 3 trimestres)
-- 309 636 bulletins
+### Session initiale
+- [x] Authentification multi-rôles (JWT + httpOnly cookies)
+- [x] Inscription en 3 étapes
+- [x] Dashboard avec statistiques globales et graphiques
+- [x] Gestion des documents (GED) avec circuit de validation
+- [x] Chat interne (conversations, contacts)
+- [x] Carte interactive SVG des 26 provinces
+- [x] Gestion SIRH (enseignants, mutations)
+- [x] Module DINACOPE (contrôle, viabilité, paie)
+- [x] Ingestion de données externes (API SECOPE mockée)
+- [x] Mode PWA hors ligne
 
-### Fonctionnalités complètes
-- Page Provinces (60 P.E., 26 P.A., navigation 3 niveaux)
-- **Carte interactive SVG** des 26 provinces (gradient couleur par nb P.E., cliquable, toggle Carte/Grille)
-- Graphiques d'évolution temporelle (12 mois)
-- Page Évaluations (radar, distribution, table par matière)
-- Inscription étape 2 avec rôles (Provincial, Établissement, Central)
-- Navigation basée sur les rôles (PROVED, IPP, DIPROCOPE, Ministre Provincial, etc.)
-- Page "Partage de Données" (Sources temps réel, Endpoints, Logs, Clés API)
-- **Endpoints d'ingestion réels** (presences, evaluations, effectifs, notes)
-- **Mode hors ligne** (Service Worker, cache static + API, bannière offline)
+### Session 2 (refactoring + données)
+- [x] Refactoring server.py: extraction routes stats → routes_stats.py
+- [x] Peuplement réaliste des 26 provinces (953 établissements, 126 804 élèves, 4 114 enseignants, 3.3M+ notes)
 
-### Refactoring (05/04/2026)
-- Extraction des routes statistiques de `server.py` vers `routes_stats.py` (340 lignes)
-- `server.py` réduit de 1482 à 1142 lignes
+### Session 3 (corrections + comptes éphémères) - 05/04/2026
+- [x] Fix URL API: toutes les URLs frontend utilisent des chemins relatifs (/api) au lieu d'URLs absolues
+- [x] Fix CORS: configuration compatible avec credentials
+- [x] Fix accents français: Édu-Connect, Élèves, Établissements, Viabilité, Présences, Partage de Données, Déconnexion
+- [x] Déplacement onglet Rapports: de la navigation principale vers la page Documents (sous-onglet)
+- [x] Fix erreur chargement Rapports: ajout credentials aux appels fetch
+- [x] Fix recherche contacts Chat: fonctionne correctement avec URL relative
+- [x] Carte RDC fidèle: SVG avec vrais contours des 26 provinces (simplifié de 400KB → 29KB)
+- [x] Fix préfixes /api manquants: EntitesExternes.jsx, ListesDistribution.jsx
+- [x] Comptes éphémères Test01-Test10 (rôle ministre, 24h)
 
-## Rôles et Accès
-| Rôle | Accès |
-|------|-------|
-| Ministre / Ministre Provincial / PROVED / Admin Tech | Tous les onglets |
-| IPP | Tout sauf Paie, Partage de Données |
-| DIPROCOPE | Tout sauf Partage de Données |
-| Chef Étab / Directeur École / CPE | Tout sauf Documents, Rapports, Paie, Partage |
-| Enseignant | Tout sauf Documents, Rapports, Partage (avec Paie) |
+## Backlog
 
-## Key Files
-- `/app/backend/routes_stats.py` - Routes statistiques (extraites de server.py)
-- `/app/frontend/src/components/dashboards/components/CarteRDC.jsx` - Carte SVG
-- `/app/frontend/public/service-worker.js` - Service Worker offline
-- `/app/frontend/src/hooks/useOfflineStatus.js` - Hook détection offline
-- `/app/frontend/src/pages/Dashboard/Provinces.jsx` - Page provinces + carte
-- `/app/frontend/src/pages/Dashboard/PartageDonnees.jsx` - Sources + endpoints
-- `/app/backend/routes_externe.py` - Endpoints d'ingestion
+### P1 - Priorité haute
+- [ ] Génération de bulletins scolaires en PDF
+- [ ] Saisie manuelle de notes par les enseignants (formulaire CRUD)
 
-## Key API Endpoints
-### Internes (JWT)
-- GET /api/stats/global, /stats/sexe, /stats/evolution, /stats/notes, /stats/province/{id}
-- GET /api/externe/sources/status, /api/externe/logs
-
-### Externes (Basic Auth)
-- POST /api/externe/presences, /evaluations, /effectifs, /notes
-
-## Prioritized Backlog
-### P1
-- [ ] Saisie manuelle de notes par enseignants (formulaire CRUD)
-- [ ] Génération/téléchargement bulletins PDF
-
-### P2
-- [ ] Connexion API SECOPE réelle
+### P2 - Priorité moyenne
+- [ ] Connexion API SECOPE réelle (quand disponible)
 - [ ] Notifications push hors ligne
+
+### Refactoring
+- [ ] Extraction routes utilisateurs de server.py si nécessaire
+- [ ] Nettoyage des variables API_URL='' inutilisées dans les composants
+
+## Données en base
+- 26 provinces administratives
+- 60 provinces éducationnelles
+- 567 sous-divisions
+- 953 établissements
+- 4 114 enseignants
+- 126 804 élèves
+- 3 319 185 notes
+- 3 276 classes
+- 16 comptes utilisateurs (dont 10 éphémères)

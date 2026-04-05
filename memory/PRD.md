@@ -12,12 +12,13 @@ Plateforme de gestion éducative pour la RDC intégrant données SECOPE/DINACOPE
 
 ## What's Been Implemented
 
-### Bugs corrigés (03/04)
-- GED Zone Verte, Viabilité, Recherche Chat, Sélection Service
-
-### Data Seeding
-- 558 établissements, 467 enseignants, 15 494 élèves, 330 classes
-- 59 238 notes, 6 000 bulletins (15 matières, 3 trimestres)
+### Data Seeding (complet)
+- 953 établissements répartis sur **26/26 provinces**
+- 4 114 enseignants
+- 126 804 élèves (88 968 primaire, 37 836 secondaire)
+- 3 276 classes
+- 3 319 185 notes (16 matières, 3 trimestres)
+- 309 636 bulletins
 
 ### Fonctionnalités complètes
 - Page Provinces (60 P.E., 26 P.A., navigation 3 niveaux)
@@ -30,6 +31,10 @@ Plateforme de gestion éducative pour la RDC intégrant données SECOPE/DINACOPE
 - **Endpoints d'ingestion réels** (presences, evaluations, effectifs, notes)
 - **Mode hors ligne** (Service Worker, cache static + API, bannière offline)
 
+### Refactoring (05/04/2026)
+- Extraction des routes statistiques de `server.py` vers `routes_stats.py` (340 lignes)
+- `server.py` réduit de 1482 à 1142 lignes
+
 ## Rôles et Accès
 | Rôle | Accès |
 |------|-------|
@@ -40,17 +45,17 @@ Plateforme de gestion éducative pour la RDC intégrant données SECOPE/DINACOPE
 | Enseignant | Tout sauf Documents, Rapports, Partage (avec Paie) |
 
 ## Key Files
+- `/app/backend/routes_stats.py` - Routes statistiques (extraites de server.py)
 - `/app/frontend/src/components/dashboards/components/CarteRDC.jsx` - Carte SVG
 - `/app/frontend/public/service-worker.js` - Service Worker offline
 - `/app/frontend/src/hooks/useOfflineStatus.js` - Hook détection offline
-- `/app/frontend/src/components/ui/OfflineBanner.jsx` - Bannière offline
 - `/app/frontend/src/pages/Dashboard/Provinces.jsx` - Page provinces + carte
 - `/app/frontend/src/pages/Dashboard/PartageDonnees.jsx` - Sources + endpoints
 - `/app/backend/routes_externe.py` - Endpoints d'ingestion
 
 ## Key API Endpoints
 ### Internes (JWT)
-- GET /api/stats/global, /stats/sexe, /stats/evolution, /stats/notes
+- GET /api/stats/global, /stats/sexe, /stats/evolution, /stats/notes, /stats/province/{id}
 - GET /api/externe/sources/status, /api/externe/logs
 
 ### Externes (Basic Auth)
@@ -60,7 +65,6 @@ Plateforme de gestion éducative pour la RDC intégrant données SECOPE/DINACOPE
 ### P1
 - [ ] Saisie manuelle de notes par enseignants (formulaire CRUD)
 - [ ] Génération/téléchargement bulletins PDF
-- [ ] Meilleure distribution données entre provinces
 
 ### P2
 - [ ] Connexion API SECOPE réelle

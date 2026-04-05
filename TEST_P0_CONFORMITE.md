@@ -26,7 +26,7 @@
 
 ```bash
 # 1. Connexion
-API_URL="https://edu-connect-drc.preview.emergentagent.com"
+API_URL="https://bulletin-pdf-preview.preview.emergentagent.com"
 TOKEN=$(curl -s -X POST "$API_URL/api/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"email":"ministre@educonnect.gouv.cd","password":"Ministre2026!"}' | \

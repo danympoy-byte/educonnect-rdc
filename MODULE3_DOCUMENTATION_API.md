@@ -351,7 +351,7 @@ Cette API est accessible uniquement via l'interface web RIE (pas d'API externe p
 import requests
 
 # Configuration
-api_url = "https://edu-connect-drc.preview.emergentagent.com"
+api_url = "https://bulletin-pdf-preview.preview.emergentagent.com"
 username = "api_ecole_kinshasa_001"
 password = "Abc123@Secure!xyz"
 
@@ -382,7 +382,7 @@ print(response.json())
 
 ```bash
 curl -X POST \
-  https://edu-connect-drc.preview.emergentagent.com/api/externe/notes \
+  https://bulletin-pdf-preview.preview.emergentagent.com/api/externe/notes \
   -u "api_ecole_kinshasa_001:Abc123@Secure!xyz" \
   -H "Content-Type: application/json" \
   -d '[
@@ -404,7 +404,7 @@ curl -X POST \
 ```javascript
 const axios = require('axios');
 
-const apiUrl = 'https://edu-connect-drc.preview.emergentagent.com';
+const apiUrl = 'https://bulletin-pdf-preview.preview.emergentagent.com';
 const username = 'api_ecole_kinshasa_001';
 const password = 'Abc123@Secure!xyz';
 

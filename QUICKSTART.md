@@ -3,7 +3,7 @@
 ## Accès Immédiat
 
 ### 🌐 URL de l'Application
-**https://edu-connect-drc.preview.emergentagent.com**
+**https://bulletin-pdf-preview.preview.emergentagent.com**
 
 ### 🔐 Compte de Test
 ```
@@ -106,16 +106,16 @@ Pour tester la vue d'un directeur :
 ### Test avec cURL
 ```bash
 # 1. Connexion
-curl -X POST https://edu-connect-drc.preview.emergentagent.com/api/auth/login \
+curl -X POST https://bulletin-pdf-preview.preview.emergentagent.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@rie.cd","password":"admin123"}'
 
 # 2. Récupérer les statistiques (remplacez TOKEN)
-curl -X GET https://edu-connect-drc.preview.emergentagent.com/api/stats/global \
+curl -X GET https://bulletin-pdf-preview.preview.emergentagent.com/api/stats/global \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # 3. Lister les provinces
-curl -X GET https://edu-connect-drc.preview.emergentagent.com/api/provinces \
+curl -X GET https://bulletin-pdf-preview.preview.emergentagent.com/api/provinces \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 

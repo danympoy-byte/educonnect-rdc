@@ -79,7 +79,7 @@ Si vous déployez sur Emergent :
 ### Test via API directe
 
 ```bash
-API_URL="https://edu-connect-drc.preview.emergentagent.com"
+API_URL="https://bulletin-pdf-preview.preview.emergentagent.com"
 
 # Se connecter
 TOKEN=$(curl -s -X POST "$API_URL/api/auth/login" \

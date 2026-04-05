@@ -24,7 +24,7 @@
     "Back button in detail view works (data-testid='back-button')",
     "Service worker file /service-worker.js returns 200 OK with correct cache configuration",
     "Manifest.json /manifest.json returns 200 OK with app name 'Edu-Connect'",
-    "Service Worker is registered and active (scope: https://learning-hub-test-8.preview.emergentagent.com/)",
+    "Service Worker is registered and active (scope: https://bulletin-pdf-preview.preview.emergentagent.com/)",
     "OfflineBanner component integrated in App.js (returns null when online as expected)"
   ],
 

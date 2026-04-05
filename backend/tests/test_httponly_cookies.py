@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent.parent
 load_dotenv(ROOT_DIR / '.env')
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://edu-connect-drc.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bulletin-pdf-preview.preview.emergentagent.com').rstrip('/')
 
 # Test credentials from test_credentials.md
 TEST_CREDENTIALS = {
@@ -206,7 +206,7 @@ class TestCORSConfiguration:
         response = session.options(
             f"{BASE_URL}/api/auth/login",
             headers={
-                "Origin": "https://edu-connect-drc.preview.emergentagent.com",
+                "Origin": "https://bulletin-pdf-preview.preview.emergentagent.com",
                 "Access-Control-Request-Method": "POST",
                 "Access-Control-Request-Headers": "Content-Type"
             }

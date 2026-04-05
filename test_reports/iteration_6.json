@@ -94,8 +94,8 @@
     }
   },
   "test_environment": {
-    "frontend_url": "https://learning-hub-test-8.preview.emergentagent.com",
-    "backend_url": "https://learning-hub-test-8.preview.emergentagent.com/api",
+    "frontend_url": "https://bulletin-pdf-preview.preview.emergentagent.com",
+    "backend_url": "https://bulletin-pdf-preview.preview.emergentagent.com/api",
     "authentication_status": "FAILING",
     "public_endpoints_working": true,
     "protected_endpoints_status": "REQUIRES_AUTH"
